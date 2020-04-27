@@ -12,6 +12,8 @@
 
 # Build results
 [Dd]ebug/
+[Rr]elease/*.exe
+[Rr]elease/*.config
 [Dd]ebugPublic/
 [Rr]eleases/
 x64/
