@@ -1,0 +1,200 @@
+﻿<Window x:Class="Relic_IC_Image_Parser.EditorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Relic_IC_Image_Parser"
+        mc:Ignorable="d"
+        Title="EditorWindow" Background="#FF243F60" Height="708" Width="1200" MinWidth="1200" MinHeight="500">
+    <Grid>
+        <Button x:Name="BtnOpenFile" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="#00000000" VerticalContentAlignment="Top" HorizontalContentAlignment="Center" Background="#FF0F3463" Padding="5,0,10,0" Margin="10,10,0,0" Click="BtnOpenFile_Click" >
+            <Button.Template>
+                <ControlTemplate TargetType="{x:Type ButtonBase}">
+                    <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                        <ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" ContentStringFormat="{TemplateBinding ContentStringFormat}" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Button.IsDefaulted" Value="True">
+                            <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" TargetName="border" Value="#FF0E4283"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="#FF3C7FB1"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Background" TargetName="border" Value="#FF0A203C"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="#FF2C628B"/>
+                        </Trigger>
+                        <Trigger Property="ToggleButton.IsChecked" Value="True">
+                            <Setter Property="Background" TargetName="border" Value="#FFBCDDEE"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="#FF245A83"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Background" TargetName="border" Value="#FFF4F4F4"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="#FFADB2B5"/>
+                            <Setter Property="Foreground" Value="#FF838383"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Button.Template>
+            <Grid VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0">
+                <Image Source="/Relic IC Image Parser;component/assets/open_folder.png" VerticalAlignment="Top" HorizontalAlignment="Left" Width="48" Height="48" Stretch="UniformToFill"/>
+                <TextBlock TextWrapping="Wrap" Text="Open File" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="60,0,0,0" Foreground="White" FontSize="16"/>
+            </Grid>
+        </Button>
+        <Button x:Name="BtnExport" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="#00000000" VerticalContentAlignment="Top" HorizontalContentAlignment="Center" Background="#FF0F3463" Padding="5,0,10,0" Margin="159,10,0,0" Click="BtnExport_Click" >
+            <Button.Template>
+                <ControlTemplate TargetType="{x:Type ButtonBase}">
+                    <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                        <ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" ContentStringFormat="{TemplateBinding ContentStringFormat}" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Button.IsDefaulted" Value="True">
+                            <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" TargetName="border" Value="#FF0E4283"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="#FF3C7FB1"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Background" TargetName="border" Value="#FF0A203C"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="#FF2C628B"/>
+                        </Trigger>
+                        <Trigger Property="ToggleButton.IsChecked" Value="True">
+                            <Setter Property="Background" TargetName="border" Value="#FFBCDDEE"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="#FF245A83"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Background" TargetName="border" Value="#FF959595"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="#FFADB2B5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Button.Template>
+            <Grid VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0">
+                <Image Source="/Relic IC Image Parser;component/assets/export.png" VerticalAlignment="Top" HorizontalAlignment="Left" Width="48" Height="48" Stretch="UniformToFill"/>
+                <TextBlock TextWrapping="Wrap" Text="Export Image" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="60,0,0,0" Foreground="White" FontSize="16"/>
+            </Grid>
+        </Button>
+        <Button x:Name="BtnResetView" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="#00000000" VerticalContentAlignment="Top" HorizontalContentAlignment="Center" Background="#FF0F3463" Padding="5,0,10,0" Margin="335,10,0,0" Click="BtnResetView_Click" >
+            <Button.Template>
+                <ControlTemplate TargetType="{x:Type ButtonBase}">
+                    <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                        <ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" ContentStringFormat="{TemplateBinding ContentStringFormat}" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Button.IsDefaulted" Value="True">
+                            <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" TargetName="border" Value="#FF0E4283"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="#FF3C7FB1"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Background" TargetName="border" Value="#FF0A203C"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="#FF2C628B"/>
+                        </Trigger>
+                        <Trigger Property="ToggleButton.IsChecked" Value="True">
+                            <Setter Property="Background" TargetName="border" Value="#FFBCDDEE"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="#FF245A83"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Background" TargetName="border" Value="#FFF4F4F4"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="#FFADB2B5"/>
+                            <Setter Property="Foreground" Value="#FF838383"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Button.Template>
+            <Grid VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0">
+                <Image Source="/Relic IC Image Parser;component/assets/reset_view.png" VerticalAlignment="Top" HorizontalAlignment="Left" Width="48" Height="48" Stretch="UniformToFill"/>
+                <TextBlock TextWrapping="Wrap" Text="Reset View" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="60,0,0,0" Foreground="White" FontSize="16"/>
+            </Grid>
+        </Button>
+        <Button x:Name="BtnToggleView" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="#00000000" VerticalContentAlignment="Top" HorizontalContentAlignment="Center" Background="#FF0F3463" Padding="5,0,10,0" Margin="493,10,0,0" Click="BtnToggleView_Click" IsEnabled="False" >
+            <Button.Template>
+                <ControlTemplate TargetType="{x:Type ButtonBase}">
+                    <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                        <ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" ContentStringFormat="{TemplateBinding ContentStringFormat}" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Button.IsDefaulted" Value="True">
+                            <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" TargetName="border" Value="#FF0E4283"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="#FF3C7FB1"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Background" TargetName="border" Value="#FF0A203C"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="#FF2C628B"/>
+                        </Trigger>
+                        <Trigger Property="ToggleButton.IsChecked" Value="True">
+                            <Setter Property="Background" TargetName="border" Value="#FFBCDDEE"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="#FF245A83"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Background" TargetName="border" Value="#FF959595"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="#FFADB2B5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Button.Template>
+            <Grid VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0">
+                <Image Source="/Relic IC Image Parser;component/assets/toggle_view.png" VerticalAlignment="Top" HorizontalAlignment="Left" Width="48" Height="48" Stretch="UniformToFill"/>
+                <TextBlock TextWrapping="Wrap" Text="Toggle View" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="60,0,0,0" Foreground="White" FontSize="16"/>
+            </Grid>
+        </Button>
+        <Border BorderThickness="1" Height="50" Margin="0,10,140,0" VerticalAlignment="Top" Width="340" Background="#FF0A2342" Padding="10,5" HorizontalAlignment="Right">
+            <TextBlock x:Name="TextBox" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top" Background="#00000000" Foreground="#FFD4D4D4" LineStackingStrategy="BlockLineHeight" FontSize="14"/>
+        </Border>
+        <Button x:Name="BtnAbout" HorizontalAlignment="Right" VerticalAlignment="Top" Foreground="#00000000" VerticalContentAlignment="Top" HorizontalContentAlignment="Center" Background="#FF0F3463" Padding="5,0,10,0" Margin="0,10,10,0" Click="BtnAbout_Click" >
+            <Button.Template>
+                <ControlTemplate TargetType="{x:Type ButtonBase}">
+                    <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                        <ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" ContentStringFormat="{TemplateBinding ContentStringFormat}" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Button.IsDefaulted" Value="True">
+                            <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" TargetName="border" Value="#FF0E4283"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="#FF3C7FB1"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Background" TargetName="border" Value="#FF0A203C"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="#FF2C628B"/>
+                        </Trigger>
+                        <Trigger Property="ToggleButton.IsChecked" Value="True">
+                            <Setter Property="Background" TargetName="border" Value="#FFBCDDEE"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="#FF245A83"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Background" TargetName="border" Value="#FFF4F4F4"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="#FFADB2B5"/>
+                            <Setter Property="Foreground" Value="#FF838383"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Button.Template>
+            <Grid VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0">
+                <Image Source="/Relic IC Image Parser;component/assets/info.png" VerticalAlignment="Top" HorizontalAlignment="Left" Width="48" Height="48" Stretch="UniformToFill"/>
+                <TextBlock TextWrapping="Wrap" Text="About" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="60,0,0,0" Foreground="White" FontSize="16"/>
+            </Grid>
+        </Button>
+        <Grid x:Name="ParentGrid" Margin="10,70,10,10" MouseWheel="ParentGrid_MouseWheel" MouseLeftButtonDown="ParentGrid_MouseLeftButtonDown" MouseLeftButtonUp="ParentGrid_MouseLeftButtonUp" MouseMove="ParentGrid_MouseMove" ClipToBounds="True">
+            <Grid.Background>
+                <ImageBrush ImageSource="/Relic IC Image Parser;component/assets/bg.jpg" Stretch="None" AlignmentX="Left" AlignmentY="Top" Viewport="0,0,16,16" ViewportUnits="Absolute" TileMode="Tile" Viewbox="0,0,1,1" Opacity="0.65"/>
+            </Grid.Background>
+            <Canvas x:Name="WorkArea" HorizontalAlignment="Center" Height="{Binding ActualHeight, ElementName=ParentGrid, Mode=OneWay}" Margin="0" VerticalAlignment="Center" Width="{Binding ActualWidth, ElementName=ParentGrid, Mode=OneWay}">
+                <Canvas.RenderTransform>
+                    <TransformGroup>
+                        <MatrixTransform  />
+                        <TranslateTransform />
+                    </TransformGroup>
+                </Canvas.RenderTransform>
+            </Canvas>
+        </Grid>
+    </Grid>
+</Window>
