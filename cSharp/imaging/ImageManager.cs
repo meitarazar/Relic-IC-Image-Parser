@@ -1,6 +1,7 @@
 ﻿using Relic_IC_Image_Parser.cSharp.imaging.relic;
 using System;
 using System.IO;
+using System.Windows;
 using System.Windows.Media.Imaging;
 
 namespace Relic_IC_Image_Parser.cSharp.imaging
@@ -16,7 +17,6 @@ namespace Relic_IC_Image_Parser.cSharp.imaging
             RelicImage rImage = RelicImage.GetRelicImage(fileName);
             if (rImage != null)
             {
-                // define self with relic image
                 fileType = FileType.Relic;
                 return rImage;
             }
@@ -25,13 +25,11 @@ namespace Relic_IC_Image_Parser.cSharp.imaging
                 BitmapImage bImage = GetBitmapImage(fileName);
                 if (bImage != null)
                 {
-                    // define self with normal image
                     fileType = FileType.Standard;
                     return bImage;
                 }
                 else
                 {
-                    // throw error message for unknown format
                     fileType = FileType.Unknown;
                     return null;
                 }
@@ -63,7 +61,10 @@ namespace Relic_IC_Image_Parser.cSharp.imaging
 
             if (exportType == ExportType.TXR && !IsValidTxrSize(bitmapSource.PixelWidth, bitmapSource.PixelHeight))
             {
-                // TODO throw an error
+                string msg = "The image you are trying to export is not a valid TXR file!\n\n" +
+                    "A valid TXR width and height are of powers of 2. (..., 32, 64, 128, 256, ...)";
+                string title = "Invalid TXR File";
+                MessageBox.Show(msg, title, MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                 return;
             }
             
@@ -74,7 +75,7 @@ namespace Relic_IC_Image_Parser.cSharp.imaging
                     switch(exportType)
                     {
                         case ExportType.TXR:
-                            RelicTxrEncoder.EncodeTxr(bitmapSource, fileStream);
+                            RelicTxrEncoder.EncodeTxr("Data:Art/Textures/Lab_LabMain_11_bmp.txr\0", bitmapSource, fileStream);
                             break;
                         default: //ExportType.SPT
                             break;

@@ -28,7 +28,8 @@ namespace Relic_IC_Image_Parser.cSharp.ui
         {
             InitializeComponent();
 
-            if (true)
+            // TODO change
+            /*if (true)
             {
                 ExportBmp.IsEnabled = true;
                 ExportGif.IsEnabled = true;
@@ -37,8 +38,8 @@ namespace Relic_IC_Image_Parser.cSharp.ui
                 ExportTiff.IsEnabled = true;
                 ExportSpt.IsEnabled = true;
                 ExportTxr.IsEnabled = true;
-            } 
-            else if (fileType == FileType.Relic)
+            }
+            else*/ if (fileType == FileType.Relic)
             {
                 ExportBmp.IsEnabled = true;
                 ExportGif.IsEnabled = true;
