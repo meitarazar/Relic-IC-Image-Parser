@@ -6,8 +6,13 @@ using System.Windows.Media.Imaging;
 
 namespace Relic_IC_Image_Parser.cSharp.imaging.relic
 {
+    /// <summary>
+    /// Tam Tam Tam!
+    /// <para>When reconstructing this silly image format, there is a lot to do.</para>
+    /// </summary>
     class RelicTxrEncoder
     {
+        // static strings of the tags
         private const string TAG_FORM = "FORM";
         private const string TAG_TXTRNAME = "TXTRNAME";
         private const string TAG_IMAGNAME = "IMAGNAME";
@@ -16,10 +21,19 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
         private const string TAG_DATA = "DATA";
         private const string VAL_NOBS = "NOBS";
         
+        /// <summary>
+        /// Encode TXR!
+        /// <para>We have the TXR data name, we have the bitmap and the file to write to! Lets' begin!</para>
+        /// </summary>
+        /// <param name="txtrDataName">The TXR data name.</param>
+        /// <param name="bitmapSource">The bitmap to encode.</param>
+        /// <param name="fileStream">The file to write to.</param>
         public static void EncodeTxr(string txtrDataName, BitmapSource bitmapSource, FileStream fileStream)
         {
+            // Gets all the sub image 'FORM's
             SubImagForm[] subImags = CreateSubImagForms(bitmapSource);
 
+            // Creates the 'FORM' that encapsulates all the sub images
             SubTxtrForm subTxtrForm = new SubTxtrForm(
                 txtrDataName, 
                 3, 
@@ -27,6 +41,7 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
                 subImags
                 );
 
+            // Create the full file 'FORM'
             byte[] form = new byte[0];
 
             AddTag(ref form, TAG_FORM);
@@ -38,8 +53,14 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
             fileStream.Write(form, 0, form.Length);
         }
 
+        /// <summary>
+        /// Constructs the sub image 'FORM's.
+        /// </summary>
+        /// <param name="bitmapSource">The largest bitmap.</param>
+        /// <returns></returns>
         private static SubImagForm[] CreateSubImagForms(BitmapSource bitmapSource)
         {
+            // calc how many to create
             int minSize = Math.Min(bitmapSource.PixelWidth, bitmapSource.PixelHeight);
             int subCount = 1;
             while (minSize != 1)
@@ -48,9 +69,11 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
                 subCount++;
             }
 
+            // create all scaled bitmaps and extract the pixels
             TransformedBitmap[] transformedBitmaps = CreateSubScaledTxtrs(subCount, bitmapSource);
             byte[][] subImagFormData = ExtractSubScaledTxtrsData(transformedBitmaps);
 
+            // buld each 'FORM' with the image and pixels data
             SubImagForm[] subImags = new SubImagForm[subCount];
             for (int i = 0; i < subCount; i++)
             {
@@ -65,6 +88,12 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
             return subImags;
         }
 
+        /// <summary>
+        /// Creates all the smaller bitmaps from the largest bitmap.
+        /// </summary>
+        /// <param name="count">The count of bitmaps to produce.</param>
+        /// <param name="bitmapSource">The largest bitmap.</param>
+        /// <returns>A list of all the smaller scaled bitmaps including the largest.</returns>
         private static TransformedBitmap[] CreateSubScaledTxtrs(int count, BitmapSource bitmapSource)
         {
             TransformedBitmap[] transformedBitmaps = new TransformedBitmap[count];
@@ -84,6 +113,11 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
             return transformedBitmaps;
         }
 
+        /// <summary>
+        /// Takes all the scaled bitmaps and the largest one, and extract the pixels from them.
+        /// </summary>
+        /// <param name="transformedBitmaps">The list of all the bitmaps.</param>
+        /// <returns>Two dimentional array that represents the raw pixels for each bitmap.</returns>
         private static byte[][] ExtractSubScaledTxtrsData(TransformedBitmap[] transformedBitmaps)
         {
             byte[][] subTxtrs = new byte[transformedBitmaps.Length][];
@@ -101,6 +135,12 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
             return subTxtrs;
         }
 
+        /// <summary>
+        /// Takes two arrays and add them together.
+        /// </summary>
+        /// <param name="array1">Array 1.</param>
+        /// <param name="array2">Array 2.</param>
+        /// <returns>The combined array.</returns>
         private static byte[] MergeArrays(byte[] array1, byte[] array2)
         {
             byte[] mergeArray = new byte[array1.Length + array2.Length];
@@ -110,23 +150,44 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
             return mergeArray;
         }
 
+        /// <summary>
+        /// Add the tage name to the 'FORM'.
+        /// </summary>
+        /// <param name="form">The 'FORM' to add to.</param>
+        /// <param name="tag">The tag name.</param>
         private static void AddTag(ref byte[] form, string tag)
         {
             AddString(ref form, tag);
         }
 
+        /// <summary>
+        /// Add the length of the tag as bytes.
+        /// </summary>
+        /// <param name="form">The 'FORM' to add to.</param>
+        /// <param name="length">The length as int 32 bit / 4 bytes</param>
         private static void AddTagLength(ref byte[] form, int length)
         {
             byte[] formSizeBytes = BitConverter.GetBytes(length);
+
+            // relic reverse the tag length
             Array.Reverse(formSizeBytes);
+
             form = MergeArrays(form, formSizeBytes);
         }
 
+        /// <summary>
+        /// Adds the string as bytes to the 'FORM'.
+        /// </summary>
+        /// <param name="form">The 'FORM' to add to.</param>
+        /// <param name="str">The string to add.</param>
         private static void AddString(ref byte[] form, string str)
         {
             form = MergeArrays(form, Encoding.ASCII.GetBytes(str));
         }
 
+        /// <summary>
+        /// The 'FORM' that conatins all of the sub images of the TXR.
+        /// </summary>
         private class SubTxtrForm
         {
             int formSize = -1;
@@ -156,6 +217,10 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
                 this.formSize = CalcFormSize();
             }
 
+            /// <summary>
+            /// Calculate the total 'FORM' bytes size based on the current tags data
+            /// </summary>
+            /// <returns>The 'FORM' bytes size.</returns>
             private int CalcFormSize()
             {
                 int formSize = 0;
@@ -186,6 +251,10 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
                 return formSize;
             }
 
+            /// <summary>
+            /// Convert the data we have to bytes representation.
+            /// </summary>
+            /// <returns>The array of bytes containing the 'FORM' data.</returns>
             public byte[] GetFormAsBytes()
             {
                 byte[] form = new byte[0];
@@ -218,6 +287,9 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
             }
         }
 
+        /// <summary>
+        /// The most basic 'FORM' in TXR
+        /// </summary>
         private class SubImagForm
         {
             public readonly int formSize = -1;
@@ -225,7 +297,7 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
             public readonly byte[] vers = null;
             public readonly byte[] attr = null;
             public readonly byte[] data = null;
-            
+
             public SubImagForm(string imagName, int versIntValue, int[] attrIntValues, byte[] pixels)
             {
                 this.imagName = imagName;
@@ -247,6 +319,10 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
                 this.formSize = CalcFormSize();
             }
 
+            /// <summary>
+            /// Calculate the total 'FORM' bytes size based on the current tags data
+            /// </summary>
+            /// <returns>The 'FORM' bytes size.</returns>
             private int CalcFormSize()
             {
                 int formSize = 0;
@@ -274,6 +350,10 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
                 return formSize;
             }
 
+            /// <summary>
+            /// Convert the data we have to bytes representation.
+            /// </summary>
+            /// <returns>The array of bytes containing the 'FORM' data.</returns>
             public byte[] GetFormAsBytes()
             {
                 byte[] form = new byte[0];

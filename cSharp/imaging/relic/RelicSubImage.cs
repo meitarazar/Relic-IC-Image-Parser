@@ -3,6 +3,9 @@ using static Relic_IC_Image_Parser.Coordinates;
 
 namespace Relic_IC_Image_Parser
 {
+    /// <summary>
+    /// Class used to hold a single sub image of the grand Relic image
+    /// </summary>
     class RelicSubImage
     {
         private readonly string imageName;
@@ -12,9 +15,13 @@ namespace Relic_IC_Image_Parser
         private Size actualSize = null;
         private byte[] actualData = null;
 
+        // the position and clip are saved as floating points
+        //   representing the precentage of the distance on the canvases
+        //   for example, the position 100 on canvas with width of 400 will be 0.25 for the x
         private Rect posPercent = null;
         private Rect clipPercent = null;
 
+        // the row and column of the image inside the grand image
         public int top;
         public int left;
 
@@ -98,6 +105,7 @@ namespace Relic_IC_Image_Parser
                 return;
             }
 
+            //  taking the precentage values and converting them to real positions
             double clipWStart = canvasSize.width * clipPercent.topLeft.x;
             double clipWEnd = canvasSize.width * clipPercent.bottomRight.x;
             double clipHStart = canvasSize.height * clipPercent.topLeft.y;
@@ -116,8 +124,10 @@ namespace Relic_IC_Image_Parser
                 return;
             }
 
+            // creating data size based on the image size and 4 bytes per pixel (ARGB)
             actualData = new byte[actualSize.width * actualSize.height * 4];
 
+            // taking the percentage values and converting them to real positions
             int iClipWStart = (int)Math.Round((canvasSize.width - 1) * clipPercent.topLeft.x * 4);
             int iClipWEnd = (int)Math.Round((canvasSize.width - 1) * clipPercent.bottomRight.x * 4);
             int iClipWAdvance = iClipWStart < iClipWEnd ? 4 : -4;
@@ -126,6 +136,7 @@ namespace Relic_IC_Image_Parser
             int iClipHEnd = (int)Math.Round((canvasSize.height - 1) * clipPercent.bottomRight.y * 4);
             int iClipHAdvance = (iClipHStart < iClipHEnd ? 4 : -4) * canvasSize.width;
 
+            // clipping the data provided to a normalized data using the clipping positions
             int i = iClipWStart + iClipHStart;
             for (int y = 0; y < actualSize.height; y++)
             {
@@ -148,21 +159,6 @@ namespace Relic_IC_Image_Parser
                 i += canvasSize.width * (-iClipWAdvance);
                 i += iClipHAdvance;
             }
-
-            /*PixelFormat pixelFormat = PixelFormats.Bgra32;
-            int stride = pixelFormat.BitsPerPixel * actualSize.width / 8;
-            BitmapSource image = BitmapSource.Create(actualSize.width, actualSize.height, 96d, 96d, pixelFormat, null, actualData, stride);
-
-            //new Bitmap(size.width, size.height, )
-            using (FileStream fileStream = File.OpenWrite("G:\\Steam\\steamapps\\common\\Impossible Creatures\\Data\\ui\\screens\\textures\\test.png"))
-            {
-                PngBitmapEncoder encoder = new PngBitmapEncoder();
-                BitmapFrame bitmapFrame = BitmapFrame.Create(image);
-                encoder.Frames.Add(bitmapFrame);
-                encoder.Interlace = PngInterlaceOption.Off;
-                encoder.Save(fileStream);
-                fileStream.Close();
-            }*/
         }
     }
 }

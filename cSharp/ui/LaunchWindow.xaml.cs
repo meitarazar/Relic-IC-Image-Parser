@@ -25,6 +25,9 @@ namespace Relic_IC_Image_Parser
             DataManager.PopulateRecentFilesList(RecentItems);
         }
 
+        /// <summary>
+        /// Just make some cosmetic preparations before showing itself
+        /// </summary>
         private void InitSelf()
         {
             Title = App.AppName;
@@ -39,6 +42,11 @@ namespace Relic_IC_Image_Parser
             InnerTitle.Text += " (v" + App.VersionName + ")";
         }
 
+        /// <summary>
+        /// Start to react to drag move after a mouse press.
+        /// </summary>
+        /// <param name="sender">The interacted object.</param>
+        /// <param name="e">The event data.</param>
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)
@@ -47,11 +55,21 @@ namespace Relic_IC_Image_Parser
             }
         }
 
+        /// <summary>
+        /// If the user wants to open a file, who are we to say no?
+        /// </summary>
+        /// <param name="sender">The interacted object.</param>
+        /// <param name="e">The event data.</param>
         private void BtnOpenFile_Click(object sender, RoutedEventArgs e)
         {
             DataManager.OpenFile(this);
         }
 
+        /// <summary>
+        /// The user pressed on an item from the recent files list, we sould do something about it...
+        /// </summary>
+        /// <param name="sender">The interacted object.</param>
+        /// <param name="e">The event data.</param>
         private void RecentItems_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Count > 0)
@@ -60,6 +78,11 @@ namespace Relic_IC_Image_Parser
             }
         }
 
+        /// <summary>
+        /// Close! Close the damn thing!
+        /// </summary>
+        /// <param name="sender">The interacted object.</param>
+        /// <param name="e">The event data.</param>
         private void BtnClose_Click(object sender, RoutedEventArgs e)
         {
             Close();

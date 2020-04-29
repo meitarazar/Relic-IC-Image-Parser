@@ -27,6 +27,10 @@ namespace Relic_IC_Image_Parser
         private bool isCanvasDragging;
         private Point canvasClickPosition;
 
+        /// <summary>
+        /// Some basic init stuff
+        /// </summary>
+        /// <param name="fullFileName"></param>
         public EditorWindow(string fullFileName)
         {
             InitializeComponent();
@@ -44,6 +48,7 @@ namespace Relic_IC_Image_Parser
                 BtnToggleView.IsEnabled = ((RelicImage)image).GetSubImages().Count > 1;
             }
 
+            // if we succeeded display the image
             if (image != null)
             {
                 DisplayFullImage();
@@ -67,22 +72,34 @@ namespace Relic_IC_Image_Parser
             }
         }
 
+        /// <summary>
+        /// Add a new text 'title' to the canvas above the image
+        /// </summary>
+        /// <param name="text">The text to show</param>
         private void DisplayText(string text)
         {
             TextBlock block = new TextBlock();
+
+            // set up properties
             block.Foreground = new SolidColorBrush(Color.FromRgb(48, 48, 48));
             block.FontSize = 14.0;
             block.FontWeight = FontWeights.Bold;
             block.Text = text;
 
+            // append to canvas and set position
             WorkArea.Children.Add(block);
             Canvas.SetTop(block, 20);
             Canvas.SetLeft(block, 40);
         }
 
+        /// <summary>
+        /// Add a new image object to the canvas
+        /// </summary>
         private void DisplayFullImage()
         {
             fullImage = new Image();
+
+            // get the bitmap based on type
             if (fileType == FileType.Relic)
             {
                 fullImage.Source = ((RelicImage)image).GetBitmap();
@@ -91,25 +108,37 @@ namespace Relic_IC_Image_Parser
             {
                 fullImage.Source = (BitmapImage)image;
             }
+
+            // append to canvas and set position
             WorkArea.Children.Add(fullImage);
             Canvas.SetTop(fullImage, 40.0);
             Canvas.SetLeft(fullImage, 40.0);
 
+            // add a title
             DisplayText("Full Image");
+
+            // set current state to full image
             BtnExport.IsEnabled = true;
             isFullImage = true;
         }
 
+        /// <summary>
+        /// Add a new image object to the canvas
+        /// </summary>
         private void DisplaySubImages()
         {
             fullImage = null;
+
+            // only Relic image has sub images
             if (fileType == FileType.Relic)
             {
                 RelicImage relicImage = (RelicImage)image;
                 List<BitmapSource> subImages = relicImage.GetSubBitmaps();
 
+                // there is no point to display the sub images if there is only one
                 if (subImages.Count > 1)
                 {
+                    // set title
                     DisplayText("Inner Images");
 
                     if (relicImage.GetImageType() == RelicImage.ImageType.SPT)
@@ -122,6 +151,8 @@ namespace Relic_IC_Image_Parser
                             image.Source = subImages[i];
                             WorkArea.Children.Add(image);
 
+                            // using the row and column that we parse while loading the file
+                            //   set the position on the canvas
                             Canvas.SetTop(image, startTop + relicImage.GetSubImages()[i].top * (255 + 40));
                             Canvas.SetLeft(image, startLeft + relicImage.GetSubImages()[i].left * (255 + 40));
                         }
@@ -135,6 +166,8 @@ namespace Relic_IC_Image_Parser
                             image.Source = subImages[i];
                             WorkArea.Children.Add(image);
 
+                            // with TXR we only need to move to the left
+                            //   because its the same image but smaller every time
                             Canvas.SetTop(image, 40.0);
                             Canvas.SetLeft(image, lastLeft);
                             lastLeft += subImages[i].Width + 40;
@@ -142,14 +175,23 @@ namespace Relic_IC_Image_Parser
                     }
                 }
             }
+
+            // standard image has no inner images
+            //  BECAUSE THEY KNOW ITS DUMB!!!
             else
             {
                 DisplayText("No Inner Images");
             }
+
+            // set the current state to full image
             BtnExport.IsEnabled = false;
             isFullImage = false;
         }
 
+        /// <summary>
+        /// Search and return the <see cref="MatrixTransform"/> of the canvas.
+        /// </summary>
+        /// <returns></returns>
         private MatrixTransform GetCanvasMatrixTransform()
         {
             if (WorkArea.RenderTransform is TransformGroup)
@@ -165,6 +207,10 @@ namespace Relic_IC_Image_Parser
             return null;
         }
 
+        /// <summary>
+        /// Search and return the <see cref="TranslateTransform"/> of the canvas.
+        /// </summary>
+        /// <returns></returns>
         private TranslateTransform GetCanvasTranslateTransform()
         {
             if (WorkArea.RenderTransform is TransformGroup)
@@ -180,6 +226,11 @@ namespace Relic_IC_Image_Parser
             return null;
         }
 
+        /// <summary>
+        /// Taking the mouse wheel and zooming the canves.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ParentGrid_MouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
         {
             MatrixTransform matrix = GetCanvasMatrixTransform();
@@ -196,6 +247,11 @@ namespace Relic_IC_Image_Parser
             }
         }
 
+        /// <summary>
+        /// Starts to capture mouse movements when mouse pressing on the canvas.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ParentGrid_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             isCanvasDragging = true;
@@ -209,12 +265,22 @@ namespace Relic_IC_Image_Parser
             WorkArea.CaptureMouse();
         }
 
+        /// <summary>
+        /// Stopping to capture mouse movements when releasing the canvas.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ParentGrid_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             isCanvasDragging = false;
             WorkArea.ReleaseMouseCapture();
         }
 
+        /// <summary>
+        /// While moving on the canvas, if we are capturing movement move the canvas.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ParentGrid_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
             if (isCanvasDragging)
@@ -230,11 +296,22 @@ namespace Relic_IC_Image_Parser
             }
         }
 
+        /// <summary>
+        /// The user always right! Open file please!
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void BtnOpenFile_Click(object sender, RoutedEventArgs e)
         {
             DataManager.OpenFile(this);
         }
 
+        /// <summary>
+        /// Well well well... You want to export huh?
+        /// <para>Well, we have a pocedure just for that inside Export window.</para>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void BtnExport_Click(object sender, RoutedEventArgs e)
         {
             if (isFullImage && (fileType == FileType.Relic || fileType == FileType.Standard))
@@ -245,6 +322,11 @@ namespace Relic_IC_Image_Parser
             }
         }
 
+        /// <summary>
+        /// If you have made a mess from the canvas, reset the zoom and position to 0.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void BtnResetView_Click(object sender, RoutedEventArgs e)
         {
             TransformGroup group = (TransformGroup)WorkArea.RenderTransform;
@@ -262,6 +344,11 @@ namespace Relic_IC_Image_Parser
             }
         }
 
+        /// <summary>
+        /// Used to switch between the grand image or the sub images of the relic image.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void BtnToggleView_Click(object sender, RoutedEventArgs e)
         {
             BtnResetView_Click(null, null);
@@ -277,6 +364,11 @@ namespace Relic_IC_Image_Parser
             }
         }
 
+        /// <summary>
+        /// Credits are important.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void BtnAbout_Click(object sender, RoutedEventArgs e)
         {
             string msg = "Well not much about here...\n\n" + 
@@ -289,6 +381,10 @@ namespace Relic_IC_Image_Parser
             MessageBox.Show(msg, title, MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK);
         }
 
+        /// <summary>
+        /// Keep watch if we are the last Editor. If we are reopen the launcher.
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnClosing(CancelEventArgs e)
         {
             App.editorsOpen--;

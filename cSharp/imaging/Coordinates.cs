@@ -1,7 +1,13 @@
 ﻿namespace Relic_IC_Image_Parser
 {
+    /// <summary>
+    /// A simple class consisted of objects that used to hold data for image parsing
+    /// </summary>
     partial class Coordinates
     {
+        /// <summary>
+        /// Basic class that holds the size of the image
+        /// </summary>
         public class Size
         {
             public readonly int width;
@@ -19,6 +25,9 @@
             }
         }
 
+        /// <summary>
+        /// Basic class that holds the TopLeft and BottomRight corners of the rectangle clip of the image
+        /// </summary>
         public class Rect
         {
             public readonly Point topLeft;
@@ -41,6 +50,9 @@
                 return new Rect(topLeft, bottomRight);
             }
 
+            /// <summary>
+            /// Basic class that holds a position on the image canvas grid
+            /// </summary>
             public class Point
             {
                 public readonly double x;
