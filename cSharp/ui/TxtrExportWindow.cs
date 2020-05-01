@@ -72,7 +72,7 @@ namespace Relic_IC_Image_Parser.cSharp.ui
 
             // everything is fine, make sure the dialog returns true and set the TxtrFilePath
             DialogResult = true;
-            txtrFilePath = TextBoxPath.Text + TextBoxFileName.Text;
+            txtrFilePath = "Data:" + TextBoxPath.Text + TextBoxFileName.Text + ".txr";
             Close();
         }
 

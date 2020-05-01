@@ -14,12 +14,81 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
     {
         // static strings of the tags
         private const string TAG_FORM = "FORM";
+        private const string TAG_PART_PICT = "PICT";
         private const string TAG_TXTRNAME = "TXTRNAME";
         private const string TAG_IMAGNAME = "IMAGNAME";
         private const string TAG_VERS = "VERS";
         private const string TAG_ATTR = "ATTR";
         private const string TAG_DATA = "DATA";
+        private const string TAG_RECT = "RECT";
         private const string VAL_NOBS = "NOBS";
+
+        // TODO doc
+        public static void EncodeSpt(BitmapSource bitmapSource, FileStream fileStream)
+        {
+            string txtrName = "C:\\SomeImage00.tga";
+
+            int fixedWidth = 1;
+            int fixedHeight = 1;
+            while (fixedWidth < bitmapSource.PixelWidth)
+            {
+                fixedWidth *= 2;
+            }
+            while (fixedHeight < bitmapSource.PixelHeight)
+            {
+                fixedHeight *= 2;
+            }
+            int fixedDataLength = fixedWidth * fixedHeight * 4;
+
+            PixelFormat pixelFormat = bitmapSource.Format;
+            int stride = pixelFormat.BitsPerPixel * bitmapSource.PixelWidth / 8;
+            byte[] pixels = new byte[bitmapSource.PixelHeight * stride];
+            bitmapSource.CopyPixels(pixels, stride, 0);
+
+            SubImagForm[] subImags = new SubImagForm[] { new SubImagForm(
+                txtrName + "\0",
+                1,
+                new int[] { 0, fixedWidth, fixedHeight, fixedDataLength},
+                stride,
+                pixels
+                ) 
+            };
+
+            SubTxtrForm subTxtrForm = new SubTxtrForm(
+                txtrName + "\0",
+                3,
+                new int[] { 1, fixedWidth, fixedHeight, subImags.Length },
+                subImags
+                );
+
+            RectForm rectForm = new RectForm(
+                txtrName,
+                new float[] { 0, 1, 0, 1},
+                new float[] { 0, ((float) bitmapSource.PixelWidth) / fixedWidth, 1, 1 - ((float)bitmapSource.PixelHeight) / fixedHeight }
+                );
+
+            // prepare form data
+            byte[] subTxtrFormData = subTxtrForm.GetFormAsBytes();
+            byte[] rectFormData = rectForm.GetFormAsBytes();
+
+            // create the full file 'FORM'
+            byte[] form = new byte[0];
+
+            AddTag(ref form, TAG_FORM);
+            AddTagLength(ref form, 4);
+            AddString(ref form, VAL_NOBS);
+
+            AddTag(ref form, TAG_FORM);
+            AddTagLength(ref form, subTxtrFormData.Length + rectFormData.Length + 4);
+
+            AddString(ref form, TAG_PART_PICT);
+
+            form = MergeArrays(form, subTxtrFormData);
+
+            form = MergeArrays(form, rectFormData);
+
+            fileStream.Write(form, 0, form.Length);
+        }
         
         /// <summary>
         /// Encode TXR!
@@ -71,7 +140,7 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
 
             // create all scaled bitmaps and extract the pixels
             TransformedBitmap[] transformedBitmaps = CreateSubScaledTxtrs(subCount, bitmapSource);
-            byte[][] subImagFormData = ExtractSubScaledTxtrsData(transformedBitmaps);
+            byte[][] subImagPixelData = ExtractSubScaledTxtrsData(transformedBitmaps);
 
             // buld each 'FORM' with the image and pixels data
             SubImagForm[] subImags = new SubImagForm[subCount];
@@ -80,8 +149,9 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
                 subImags[i] = new SubImagForm(
                     (i == 0 ? "S:\\DataSrc\\Art\\Structures\\Lab\\MODEL\\LabMain_11.bmp\0" : "\0"),
                     1,
-                    new int[] { 0, transformedBitmaps[i].PixelWidth, transformedBitmaps[i].PixelHeight, subImagFormData[i].Length},
-                    subImagFormData[i]
+                    new int[] { 0, transformedBitmaps[i].PixelWidth, transformedBitmaps[i].PixelHeight, subImagPixelData[i].Length},
+                    0,
+                    subImagPixelData[i]
                     );
             }
 
@@ -170,12 +240,17 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
         /// <param name="length">The length as int 32 bit / 4 bytes</param>
         private static void AddTagLength(ref byte[] form, int length)
         {
-            byte[] formSizeBytes = BitConverter.GetBytes(length);
+            byte[] tagSizeBytes = BitConverter.GetBytes(length);
 
             // relic reverse the tag length
-            Array.Reverse(formSizeBytes);
+            Array.Reverse(tagSizeBytes);
 
-            form = MergeArrays(form, formSizeBytes);
+            AddInt32(ref form, BitConverter.ToInt32(tagSizeBytes, 0));
+        }
+
+        private static void AddInt32(ref byte[] form, int integer)
+        {
+            form = MergeArrays(form, BitConverter.GetBytes(integer));
         }
 
         /// <summary>
@@ -189,7 +264,7 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
         }
 
         /// <summary>
-        /// The 'FORM' that conatins all of the sub images of the TXR.
+        /// The 'FORM' that conatins all of the sub images of the Relic image file.
         /// </summary>
         private class SubTxtrForm
         {
@@ -291,7 +366,7 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
         }
 
         /// <summary>
-        /// The most basic 'FORM' in TXR
+        /// The most basic 'FORM' in Relic image file.
         /// </summary>
         private class SubImagForm
         {
@@ -301,7 +376,7 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
             public readonly byte[] attr = null;
             public readonly byte[] data = null;
 
-            public SubImagForm(string imagName, int versIntValue, int[] attrIntValues, byte[] pixels)
+            public SubImagForm(string imagName, int versIntValue, int[] attrIntValues, int stride, byte[] pixels)
             {
                 this.imagName = imagName;
 
@@ -317,7 +392,21 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
                     attr[i + 3] = curBytes[(i + 3) % 4];
                 }
 
-                this.data = (byte[])pixels.Clone();
+                if (attrIntValues[3] > pixels.Length)
+                {
+                    this.data = new byte[attrIntValues[3]];
+
+                    int dataStride = attrIntValues[1] * 4;
+                    int pixelsHeight = pixels.Length / stride;
+                    for (int i = 0; i < pixelsHeight; i++)
+                    {
+                        Array.Copy(pixels, i * stride, data, data.Length - (i + 1) * dataStride, stride);
+                    }
+                }
+                else
+                {
+                    this.data = (byte[])pixels.Clone();
+                }
 
                 this.formSize = CalcFormSize();
             }
@@ -384,6 +473,84 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
                 AddTag(ref form, TAG_DATA);
                 AddTagLength(ref form, data.Length);
                 form = MergeArrays(form, data);
+
+                return form;
+            }
+        }
+
+        // TODO doc
+        private class RectForm
+        {
+            public readonly int formSize = -1;
+            public readonly string txtrName = null;
+            public readonly byte[] pos = null;
+            public readonly byte[] clip = null;
+
+            public RectForm(string txtrName, float[] posFloatVals, float[] clipFloatVals)
+            {
+                this.txtrName = txtrName;
+
+                this.pos = new byte[posFloatVals.Length * 4];
+                for (int i = 0; i < pos.Length - 3; i += 4)
+                {
+                    byte[] curBytes = BitConverter.GetBytes(posFloatVals[i / 4]);
+                    pos[i] = curBytes[i % 4];
+                    pos[i + 1] = curBytes[(i + 1) % 4];
+                    pos[i + 2] = curBytes[(i + 2) % 4];
+                    pos[i + 3] = curBytes[(i + 3) % 4];
+                }
+
+                this.clip = new byte[clipFloatVals.Length * 4];
+                for (int i = 0; i < clip.Length - 3; i += 4)
+                {
+                    byte[] curBytes = BitConverter.GetBytes(clipFloatVals[i / 4]);
+                    clip[i] = curBytes[i % 4];
+                    clip[i + 1] = curBytes[(i + 1) % 4];
+                    clip[i + 2] = curBytes[(i + 2) % 4];
+                    clip[i + 3] = curBytes[(i + 3) % 4];
+                }
+
+                this.formSize = CalcFormSize();
+            }
+
+            /// <summary>
+            /// Calculate the total 'FORM' bytes size based on the current tags data
+            /// </summary>
+            /// <returns>The 'FORM' bytes size.</returns>
+            private int CalcFormSize()
+            {
+                int formSize = 0;
+
+                // TXTRNAME
+                formSize += 4; // name info length
+                formSize += txtrName.Length; // name data length
+
+                // POS
+                formSize += pos.Length; // pos data length
+
+                // CLIP
+                formSize += clip.Length; // clip data length
+
+                return formSize;
+            }
+
+            internal byte[] GetFormAsBytes()
+            {
+                byte[] form = new byte[0];
+
+                // RECT
+                AddTag(ref form, TAG_RECT);
+                AddTagLength(ref form, formSize);
+
+                // TXTRNAME (in 'RECT' form the length is not reversed)
+                AddInt32(ref form, txtrName.Length);
+                AddString(ref form, txtrName);
+
+                // POS
+                form = MergeArrays(form, pos);
+
+                // CLIP
+                form = MergeArrays(form, clip);
 
                 return form;
             }

@@ -138,6 +138,7 @@ namespace Relic_IC_Image_Parser.cSharp.imaging
                             RelicEncoder.EncodeTxr(txtrDataPath + "\0", bitmapSource, fileStream);
                             break;
                         default: //ExportType.SPT
+                            RelicEncoder.EncodeSpt(bitmapSource, fileStream);
                             break;
                     }
 

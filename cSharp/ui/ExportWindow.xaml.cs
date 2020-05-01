@@ -19,18 +19,7 @@ namespace Relic_IC_Image_Parser.cSharp.ui
         {
             InitializeComponent();
 
-            // TODO change
-            /*if (true)
-            {
-                ExportBmp.IsEnabled = true;
-                ExportGif.IsEnabled = true;
-                ExportJpg.IsEnabled = true;
-                ExportPng.IsEnabled = true;
-                ExportTiff.IsEnabled = true;
-                ExportSpt.IsEnabled = true;
-                ExportTxr.IsEnabled = true;
-            }
-            else*/ if (fileType == FileType.Relic)
+            if (fileType == FileType.Relic)
             {
                 ExportBmp.IsEnabled = true;
                 ExportGif.IsEnabled = true;
