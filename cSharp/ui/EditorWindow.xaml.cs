@@ -372,15 +372,9 @@ namespace Relic_IC_Image_Parser
         private void BtnAbout_Click(object sender, RoutedEventArgs e)
         {
             // TODO proper about
-            
-            string msg = "Well not much about here...\n\n" + 
-                "Just me, Meitar Azar, the creator.\n" + 
-                "For you, The Modding communyty.\n" + 
-                "Have fun :P\n\n" + 
-                "App Version v" + App.VersionName;
-            string title = "About " + App.AppName;
-
-            MessageBox.Show(msg, title, MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK);
+            AboutWindow aboutWindow = new AboutWindow();
+            aboutWindow.Owner = this;
+            aboutWindow.ShowDialog();
         }
 
         /// <summary>

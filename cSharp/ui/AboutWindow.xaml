@@ -1,0 +1,38 @@
+﻿<Window x:Class="Relic_IC_Image_Parser.cSharp.ui.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Relic_IC_Image_Parser.cSharp.ui"
+        mc:Ignorable="d"
+        Title="About " ResizeMode="NoResize" Background="#FF243F60" WindowStartupLocation="CenterOwner" ShowInTaskbar="False" WindowStyle="ToolWindow" SizeToContent="WidthAndHeight">
+    <Grid Margin="32">
+        <Grid HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0" Width="400">
+            <TextBlock HorizontalAlignment="Center" Margin="0,18,0,0" TextWrapping="Wrap" Text="MightySarion" VerticalAlignment="Top" Foreground="#FFD4D4D4" FontSize="36"/>
+            <TextBlock HorizontalAlignment="Center" Margin="0,84,0,0" VerticalAlignment="Top">
+                <Hyperlink NavigateUri="https://github.com/meitarazar/" RequestNavigate="Hyperlink_Request" Foreground="{x:Null}">
+                    <Image Source="/Relic IC Image Parser;component/assets/GitHub_Mark.png" Height="35" Width="35"/>
+                    <Image Source="/Relic IC Image Parser;component/assets/GitHub_Logo.png" Height="35" Width="86"/>
+                </Hyperlink>
+            </TextBlock>
+            <TextBlock HorizontalAlignment="Center" Margin="0,138,0,0" VerticalAlignment="Top">
+                <Hyperlink NavigateUri="https://steamcommunity.com/profiles/76561198024775438/" RequestNavigate="Hyperlink_Request" Foreground="{x:Null}">
+                    <Image Source="/Relic IC Image Parser;component/assets/steam_logo.png" Height="35"/>
+                </Hyperlink>
+            </TextBlock>
+            <TextBlock x:Name="TextBoxVersion" HorizontalAlignment="Center" Margin="0,215,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Foreground="#FF243F60" FontSize="24" Background="#FFD4D4D4" Padding="5"/>
+            <TextBlock HorizontalAlignment="Center" Margin="0,285,0,0" TextWrapping="Wrap" Text="Images and Icons by" VerticalAlignment="Top" Foreground="#A5D4D4D4"/>
+            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,315,0,0" >
+                <Hyperlink NavigateUri="https://material.io/" RequestNavigate="Hyperlink_Request" TextDecorations="{x:Null}">
+                    <Image Width="48" Height="48" Source="/Relic IC Image Parser;component/assets/Google_Material_Design_Logo.png"/>
+                    <TextBlock TextWrapping="Wrap" VerticalAlignment="Top" Foreground="#FFD4D4D4" FontSize="16" Text="Google Material Design" Margin="4,-7,0,0" HorizontalAlignment="Left" Width="131" />
+                </Hyperlink>
+            </TextBlock>
+            <TextBlock HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,315,0,0" >
+                <Hyperlink NavigateUri="https://www.freepik.com/" RequestNavigate="Hyperlink_Request" TextDecorations="{x:Null}">
+                    <Image Height="48" Source="/Relic IC Image Parser;component/assets/freepik.png"/>
+                </Hyperlink>
+            </TextBlock>
+        </Grid>
+    </Grid>
+</Window>

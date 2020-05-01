@@ -85,6 +85,10 @@
     <Compile Include="cSharp\imaging\relic\RelicSubImage.cs" />
     <Compile Include="cSharp\imaging\relic\RelicDecoder.cs" />
     <Compile Include="cSharp\imaging\relic\RelicTag.cs" />
+    <Page Include="cSharp\ui\AboutWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="cSharp\ui\EditorWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -103,6 +107,9 @@
     </Compile>
     <Compile Include="cSharp\imaging\Coordinates.cs" />
     <Compile Include="cSharp\imaging\relic\RelicEncoder.cs" />
+    <Compile Include="cSharp\ui\AboutWindow.xaml.cs">
+      <DependentUpon>AboutWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="cSharp\ui\EditorWindow.xaml.cs">
       <DependentUpon>EditorWindow.xaml</DependentUpon>
     </Compile>
@@ -190,6 +197,24 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="assets\toggle_view.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\mightysarion.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\GitHub_Logo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\GitHub_Mark.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\steam_logo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\Google_Material_Design_Logo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\freepik.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
