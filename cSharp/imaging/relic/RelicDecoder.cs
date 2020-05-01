@@ -11,7 +11,7 @@ namespace Relic_IC_Image_Parser
     /// <summary>
     /// A bit complex, but does the job of making sense of the relic image files.
     /// </summary>
-    partial class RelicParser
+    partial class RelicDecoder
     {
         /// <summary>
         /// Open the file to a readable stream.
@@ -101,7 +101,7 @@ namespace Relic_IC_Image_Parser
         /// </summary>
         /// <param name="tags"></param>
         /// <returns></returns>
-        public static List<RelicSubImage> ParseImage(List<RelicTag> tags)
+        public static List<RelicSubImage> DecodeImage(List<RelicTag> tags)
         {
             bool consumeSubImageData = false;
             List<RelicSubImage> subImages = new List<RelicSubImage>();

@@ -316,7 +316,7 @@ namespace Relic_IC_Image_Parser
         {
             if (isFullImage && (fileType == FileType.Relic || fileType == FileType.Standard))
             {
-                ExportWindow exportWindow = new ExportWindow(fileType, (BitmapSource)fullImage.Source.Clone());
+                ExportWindow exportWindow = new ExportWindow(fileType, myFile.Name, (BitmapSource)fullImage.Source.Clone());
                 exportWindow.Owner = this;
                 exportWindow.ShowDialog();
             }
@@ -371,6 +371,8 @@ namespace Relic_IC_Image_Parser
         /// <param name="e"></param>
         private void BtnAbout_Click(object sender, RoutedEventArgs e)
         {
+            // TODO proper about
+            
             string msg = "Well not much about here...\n\n" + 
                 "Just me, Meitar Azar, the creator.\n" + 
                 "For you, The Modding communyty.\n" + 

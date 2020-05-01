@@ -83,7 +83,7 @@
     <Compile Include="cSharp\imaging\ImageManager.cs" />
     <Compile Include="cSharp\imaging\relic\RelicImage.cs" />
     <Compile Include="cSharp\imaging\relic\RelicSubImage.cs" />
-    <Compile Include="cSharp\imaging\relic\RelicParser.cs" />
+    <Compile Include="cSharp\imaging\relic\RelicDecoder.cs" />
     <Compile Include="cSharp\imaging\relic\RelicTag.cs" />
     <Page Include="cSharp\ui\EditorWindow.xaml">
       <SubType>Designer</SubType>
@@ -102,7 +102,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="cSharp\imaging\Coordinates.cs" />
-    <Compile Include="cSharp\imaging\relic\RelicTxrEncoder.cs" />
+    <Compile Include="cSharp\imaging\relic\RelicEncoder.cs" />
     <Compile Include="cSharp\ui\EditorWindow.xaml.cs">
       <DependentUpon>EditorWindow.xaml</DependentUpon>
     </Compile>
@@ -113,8 +113,15 @@
       <DependentUpon>LaunchWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="cSharp\ui\TxtrExportWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="cSharp\ui\TxtrExportWindow.cs">
+      <DependentUpon>TxtrExportWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

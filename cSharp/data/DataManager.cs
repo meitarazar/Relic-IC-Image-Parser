@@ -192,12 +192,18 @@ namespace Relic_IC_Image_Parser.cSharp.data
         /// Open a new Save File Dialog based on the export type provided.
         /// </summary>
         /// <param name="exportType">The export type of the file.</param>
+        /// <param name="fileName">The original file name.</param>
         /// <returns>If the dialog returns OK return file path, otherwise return null.</returns>
-        public static string SaveFile(ExportType exportType)
+        public static string SaveFile(ExportType exportType, string fileName)
         {
+            // remove the extention from file name
+            string[] fileNameSplit = fileName.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
+            string filenameNoExt = string.Join(".", fileNameSplit, 0, fileNameSplit.Length - 1);
+
             SaveFileDialog saveFileDialog = new SaveFileDialog()
             {
                 Title = "Export Image File",
+                FileName = filenameNoExt,
                 CheckFileExists = false,
                 CheckPathExists = true,
                 AddExtension = true

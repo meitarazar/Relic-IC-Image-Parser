@@ -10,7 +10,7 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
     /// Tam Tam Tam!
     /// <para>When reconstructing this silly image format, there is a lot to do.</para>
     /// </summary>
-    class RelicTxrEncoder
+    class RelicEncoder
     {
         // static strings of the tags
         private const string TAG_FORM = "FORM";
@@ -23,19 +23,19 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
         
         /// <summary>
         /// Encode TXR!
-        /// <para>We have the TXR data name, we have the bitmap and the file to write to! Lets' begin!</para>
+        /// <para>We have the TXR data path, we have the bitmap and the file to write to! Lets' begin!</para>
         /// </summary>
-        /// <param name="txtrDataName">The TXR data name.</param>
+        /// <param name="txtrDataPath">The TXR data path.</param>
         /// <param name="bitmapSource">The bitmap to encode.</param>
         /// <param name="fileStream">The file to write to.</param>
-        public static void EncodeTxr(string txtrDataName, BitmapSource bitmapSource, FileStream fileStream)
+        public static void EncodeTxr(string txtrDataPath, BitmapSource bitmapSource, FileStream fileStream)
         {
             // Gets all the sub image 'FORM's
             SubImagForm[] subImags = CreateSubImagForms(bitmapSource);
 
             // Creates the 'FORM' that encapsulates all the sub images
             SubTxtrForm subTxtrForm = new SubTxtrForm(
-                txtrDataName, 
+                txtrDataPath, 
                 3, 
                 new int[] { 0, bitmapSource.PixelWidth, bitmapSource.PixelHeight, subImags.Length },
                 subImags
@@ -125,11 +125,14 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
             PixelFormat pixelFormat = transformedBitmaps[0].Format;
             for (int i = 0; i < transformedBitmaps.Length; i++)
             {
-                int stride = pixelFormat.BitsPerPixel * transformedBitmaps[i].PixelWidth / 8;
+                int width = transformedBitmaps[i].PixelWidth;
+                int stride = pixelFormat.BitsPerPixel * width / 8;
                 byte[] pixels = new byte[transformedBitmaps[i].PixelHeight * stride];
                 transformedBitmaps[i].CopyPixels(pixels, stride, 0);
 
-                subTxtrs[i] = pixels;
+                // remember that TXR is vertically flipped? so yeah...
+                //   we flipped it while importing, and we need to flip it back
+                subTxtrs[i] = RelicImage.ReverseTxrData(width, pixels);
             }
 
             return subTxtrs;
@@ -191,14 +194,14 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
         private class SubTxtrForm
         {
             int formSize = -1;
-            string txtrName = null;
+            string txtrPath = null;
             byte[] vers = null;
             byte[] data = null;
             SubImagForm[] subImags = null;
 
-            public SubTxtrForm(string txtrName, int versIntValue, int[] dataIntValues, SubImagForm[] subImags)
+            public SubTxtrForm(string txtrPath, int versIntValue, int[] dataIntValues, SubImagForm[] subImags)
             {
-                this.txtrName = txtrName;
+                this.txtrPath = txtrPath;
 
                 this.vers = BitConverter.GetBytes(versIntValue);
 
@@ -228,7 +231,7 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
                 // TXTRNAME
                 formSize += TAG_TXTRNAME.Length; // tag length
                 formSize += 4; // tag info length
-                formSize += txtrName.Length; // tag data length
+                formSize += txtrPath.Length; // tag data length
 
                 // VERS
                 formSize += TAG_VERS.Length; // tag length
@@ -265,8 +268,8 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
 
                 // TXTRNAME
                 AddTag(ref form, TAG_TXTRNAME);
-                AddTagLength(ref form, txtrName.Length);
-                AddString(ref form, txtrName);
+                AddTagLength(ref form, txtrPath.Length);
+                AddString(ref form, txtrPath);
 
                 // VERS
                 AddTag(ref form, TAG_VERS);

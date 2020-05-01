@@ -1,5 +1,6 @@
 ﻿using Relic_IC_Image_Parser.cSharp.data;
 using Relic_IC_Image_Parser.cSharp.imaging;
+using System.IO;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using static Relic_IC_Image_Parser.cSharp.imaging.ImageManager;
@@ -11,9 +12,10 @@ namespace Relic_IC_Image_Parser.cSharp.ui
     /// </summary>
     public partial class ExportWindow : Window
     {
+        private readonly string fileName;
         private readonly BitmapSource bitmapSource;
         
-        public ExportWindow(FileType fileType, BitmapSource bitmapSource)
+        public ExportWindow(FileType fileType, string fileName, BitmapSource bitmapSource)
         {
             InitializeComponent();
 
@@ -42,6 +44,7 @@ namespace Relic_IC_Image_Parser.cSharp.ui
                 ExportTxr.IsEnabled = true;
             }
 
+            this.fileName = fileName;
             this.bitmapSource = bitmapSource;
         }
 
@@ -82,7 +85,7 @@ namespace Relic_IC_Image_Parser.cSharp.ui
 
         private void Export(ExportType exportType)
         {
-            ImageManager.ExportImage(exportType, bitmapSource, DataManager.SaveFile(exportType));
+            ImageManager.ExportImage(this, exportType, bitmapSource, new FileInfo(DataManager.SaveFile(exportType, fileName)));
             Close();
         }
     }

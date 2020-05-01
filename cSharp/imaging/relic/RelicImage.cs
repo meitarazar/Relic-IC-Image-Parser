@@ -46,24 +46,24 @@ namespace Relic_IC_Image_Parser
         /// <returns></returns>
         public static RelicImage GetRelicImage(string fullFileName)
         {
-            FileStream stream = RelicParser.OpenStream(fullFileName);
-            if (RelicParser.IsRelicFile(stream))
+            FileStream stream = RelicDecoder.OpenStream(fullFileName);
+            if (RelicDecoder.IsRelicFile(stream))
             {
-                List<RelicTag> relicTags = RelicParser.ReadAllTags(stream);
+                List<RelicTag> relicTags = RelicDecoder.ReadAllTags(stream);
                 
                 // if we have null tags that must mean that the format is unknown to us
                 //   (until someone make an upgrade... *wink* *wink*)
-                if (RelicParser.HasNullTags(relicTags))
+                if (RelicDecoder.HasNullTags(relicTags))
                 {
                     return null;
                 }
 
                 // based on super sophisticated shit, determining the Relic image type
                 //   (I dare you to look inside this function!)
-                ImageType imageType = RelicParser.AnalyzeTags(relicTags);
+                ImageType imageType = RelicDecoder.AnalyzeTags(relicTags);
 
                 // the actual sub image extraction
-                List<RelicSubImage> subImages = RelicParser.ParseImage(relicTags);
+                List<RelicSubImage> subImages = RelicDecoder.DecodeImage(relicTags);
 
                 // done, it wasn't easy, but we are done
                 return new RelicImage(imageType, new FileInfo(fullFileName), subImages);
@@ -187,6 +187,34 @@ namespace Relic_IC_Image_Parser
             return data;
         }
 
+        /// <summary>
+        /// The TXR don't have clipping data, but it is still flipped vertically.
+        /// So we flip it back to normal when loading or flip a normal image back to the way TXR is built.
+        /// </summary>
+        /// <param name="imageWidth">The image width.</param>
+        /// <param name="data">The image data to reverse vertically.</param>
+        /// <returns>Vertically flipped image data.</returns>
+        public static byte[] ReverseTxrData(int imageWidth, byte[] data)
+        {
+            // init the data we need to flip it vertically
+            int bytesPerWidth = imageWidth * 4;
+            byte[] revData = new byte[data.Length];
+
+            // work our way up until the last row
+            int lastRow = revData.Length - bytesPerWidth;
+
+            for (int i = 0; i < lastRow; i += bytesPerWidth)
+            {
+                // on the source data work our way backwards
+                int srcIndex = data.Length - i - bytesPerWidth;
+
+                // normal copy of the row (thankfuly the rows aren't flipped)
+                Array.Copy(data, srcIndex, revData, i, bytesPerWidth);
+            }
+
+            return revData;
+        }
+
         public ImageType GetImageType()
         {
             return imageType;
@@ -198,16 +226,27 @@ namespace Relic_IC_Image_Parser
         }
 
         /// <summary>
-        /// Simple method to convert the raw pixels data to a workable, presentable image image
+        /// Simple method to convert the raw pixels data to a workable, presentable image
         /// </summary>
         /// <param name="size">The reported size of the image.</param>
         /// <param name="data">The raw pixels data.</param>
+        /// <param name="reverse">If we need to flip the image vertically.</param>
         /// <returns>The workable, presentable image.</returns>
-        private BitmapSource ConstructBitmap(Size size, byte[] data)
+        private BitmapSource ConstructBitmap(Size size, byte[] data, bool reverse)
         {
             PixelFormat pixelFormat = PixelFormats.Bgra32;
             int stride = pixelFormat.BitsPerPixel * size.width / 8;
-            return BitmapSource.Create(size.width, size.height, DataManager.relicImageDpi, DataManager.relicImageDpi, pixelFormat, null, data, stride);
+
+            // set the data of the image
+            byte[] bitmapData = data;
+
+            // reverse the data if we need to
+            if (reverse)
+            {
+                bitmapData = ReverseTxrData(size.width, data);
+            }
+
+            return BitmapSource.Create(size.width, size.height, DataManager.relicImageDpi, DataManager.relicImageDpi, pixelFormat, null, bitmapData, stride);
         }
 
         /// <summary>
@@ -218,7 +257,14 @@ namespace Relic_IC_Image_Parser
         {
             if (bitmap == null)
             {
-                bitmap = ConstructBitmap(totalSize, imageData);
+                if (imageType == ImageType.TXR)
+                {
+                    bitmap = ConstructBitmap(totalSize, imageData, true);
+                }
+                else
+                {
+                    bitmap = ConstructBitmap(totalSize, imageData, false);
+                }
             }
 
             return bitmap;
@@ -237,11 +283,11 @@ namespace Relic_IC_Image_Parser
                 {
                     if (imageType == ImageType.SPT)
                     {
-                        subBitmaps.Add(ConstructBitmap(subImage.GetActualSize(), subImage.GetActualData()));
+                        subBitmaps.Add(ConstructBitmap(subImage.GetActualSize(), subImage.GetActualData(), false));
                     }
                     else //if (imageType == ImageType.TXR)
                     {
-                        subBitmaps.Add(ConstructBitmap(subImage.GetCanvasSize(), subImage.GetCanvasData()));
+                        subBitmaps.Add(ConstructBitmap(subImage.GetCanvasSize(), subImage.GetCanvasData(), true));
                     }
                 }
             }

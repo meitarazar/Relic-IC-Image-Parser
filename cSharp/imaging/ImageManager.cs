@@ -1,4 +1,5 @@
 ﻿using Relic_IC_Image_Parser.cSharp.imaging.relic;
+using Relic_IC_Image_Parser.cSharp.ui;
 using System;
 using System.IO;
 using System.Windows;
@@ -83,11 +84,11 @@ namespace Relic_IC_Image_Parser.cSharp.imaging
         /// </summary>
         /// <param name="exportType">The export type.</param>
         /// <param name="bitmapSource">The image to export.</param>
-        /// <param name="fileName">The file path to save to.</param>
-        public static void ExportImage(ExportType exportType, BitmapSource bitmapSource, string fileName)
+        /// <param name="fileInfo">The file info to save to.</param>
+        public static void ExportImage(Window owner, ExportType exportType, BitmapSource bitmapSource, FileInfo fileInfo)
         {
-            // we have nothing to do if the file name is null
-            if (fileName == null)
+            // we have nothing to do if the file info is null
+            if (fileInfo == null)
             {
                 return;
             }
@@ -101,18 +102,40 @@ namespace Relic_IC_Image_Parser.cSharp.imaging
                 MessageBox.Show(msg, title, MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                 return;
             }
-            
+
+            // set the txtr data file path
+            string txtrDataPath = null;
+            if (exportType == ExportType.TXR)
+            {
+                // remove extention from file name
+                string[] fileNameSplit = fileInfo.Name.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
+                string filenameNoExt = string.Join(".", fileNameSplit, 0, fileNameSplit.Length - 1);
+
+                // open dialog to get the txtr data path
+                TxtrExportWindow txtrExportWindow = new TxtrExportWindow(filenameNoExt);
+                txtrExportWindow.Owner = owner;
+
+                // if return false, exit
+                if (!txtrExportWindow.ShowDialog().Value)
+                {
+                    return;
+                }
+
+                // set the txtr data path
+                txtrDataPath = txtrExportWindow.txtrFilePath;
+                //txtrDataPath = "Data:Art/Textures/henchmen_henchmen_tpage_01_tga.txr";
+            }
+
             // opening a file stream to the disk
-            using (FileStream fileStream = File.OpenWrite(fileName))
+            using (FileStream fileStream = File.OpenWrite(fileInfo.FullName))
             {
                 // if we are dealing with relic type of image
                 if (exportType == ExportType.SPT || exportType == ExportType.TXR)
                 {
                     switch(exportType)
                     {
-                        // TODO test if the txtr data name is important
                         case ExportType.TXR:
-                            RelicTxrEncoder.EncodeTxr("Data:Art/Textures/Lab_LabMain_11_bmp.txr\0", bitmapSource, fileStream);
+                            RelicEncoder.EncodeTxr(txtrDataPath + "\0", bitmapSource, fileStream);
                             break;
                         default: //ExportType.SPT
                             break;
