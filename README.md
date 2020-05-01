@@ -5,6 +5,9 @@ Simple tool for converting Relic's Impossible Creatures SPT and TXR files to a s
 You can find a guide for this tool at the **Steam Workshop**, under the game **Impossible Creatures**:
 > [Modding the SPT and TXR files using this simple tool!](https://steamcommunity.com/sharedfiles/filedetails/?id=2080816778/)
 
+### Download
+Just navigate to the [Release](Release/) folder and choose the version to download.
+
 ### Bug Reports and Contribution
 ###### Found a Bug?
 You can leave a comment at the **Steam Workshop** guide and I will do my best to fix the issue.
