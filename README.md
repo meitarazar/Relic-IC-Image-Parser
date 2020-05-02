@@ -15,6 +15,8 @@ You can leave a comment at the **Steam Workshop** guide and I will do my best to
 ###### Want To Help Improve This Tool?
 Contact me and if you want, you can be one of the collaborators here on GitHub, and make thing even better!
 
+### Project [License](https://github.com/meitarazar/Relic-IC-Image-Parser/blob/master/LICENSE)
+
 ### Credits
 Images and icons has been taken from:
 - [Google Material Desing](https://material.io/)
