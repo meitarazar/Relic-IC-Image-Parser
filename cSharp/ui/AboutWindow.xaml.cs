@@ -27,7 +27,7 @@ namespace Relic_IC_Image_Parser.cSharp.ui
 
             Title += App.AppName;
 
-            TextBoxVersion.Text = App.AppName + " - v" + App.VersionName;
+            VersionBlock.Text = App.AppName + " - v" + App.VersionName;
         }
 
         private void LaunchLink(string uri)

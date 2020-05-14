@@ -199,9 +199,6 @@
     <Resource Include="assets\toggle_view.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="assets\mightysarion.jpg" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="assets\GitHub_Logo.png" />
   </ItemGroup>
   <ItemGroup>
@@ -215,6 +212,20 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="assets\freepik.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\mightysarion.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\freepik_60h.png" />
+    <Resource Include="assets\GitHub_Mark_50h.png" />
+    <Resource Include="assets\Google_Material_Design_Logo_100h.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\steam_logo_60h.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\GitHub_Logo_60h.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
