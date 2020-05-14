@@ -39,7 +39,7 @@ namespace Relic_IC_Image_Parser
                 "   - View the inner images and the full image that they construct" + "\n" +
                 "   - Convert the full image to a known image format (like PNG duhhh)" + "\n" +
                 "   - Create a new SPT or TXR file from a known image format (YEAH!!!)";
-            InnerTitle.Text += " (v" + App.VersionName + ")";
+            InnerTitle.Text = App.AppName + " (v" + App.VersionName + ")";
         }
 
         /// <summary>
