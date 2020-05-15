@@ -135,6 +135,10 @@ namespace Relic_IC_Image_Parser
                 //   for each pixel is four bytes, ARGB
                 data = new byte[totalSize.width * totalSize.height * 4];
 
+                int lastY = -1;
+                int lastX = -1;
+                int lastTop = 0;
+                int lastLeft = 0;
                 foreach (RelicSubImage subImage in subImages)
                 {
                     // where does it begin and where does it end?
@@ -146,8 +150,37 @@ namespace Relic_IC_Image_Parser
 
                     // we take the column and row positions of the sub image,
                     //   top for row, and left for column
-                    subImage.top = yStart / 255;
-                    subImage.left = xStart / 255;
+                    if (lastY == -1)
+                    {
+                        lastY = yStart;
+                    }
+                    else if (lastY < yStart)
+                    {
+                        lastY = yStart;
+                        lastTop++;
+                    }
+                    else if (lastY > yStart)
+                    {
+                        lastY = yStart;
+                        lastTop = 0;
+                    }
+                    subImage.top = lastTop;
+
+                    if (lastX == -1)
+                    {
+                        lastX = xStart;
+                    }
+                    else if (lastX < xStart)
+                    {
+                        lastX = xStart;
+                        lastLeft++;
+                    }
+                    else if (lastX > xStart)
+                    {
+                        lastX = xStart;
+                        lastLeft = 0;
+                    }
+                    subImage.left = lastLeft;
 
                     // just copy, pixel by pixel, to the corresponding place on the grand canvas,
                     //   we already did the heavy lifting inside the RelicSubImage class

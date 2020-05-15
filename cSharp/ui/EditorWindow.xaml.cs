@@ -151,10 +151,12 @@ namespace Relic_IC_Image_Parser
                             image.Source = subImages[i];
                             WorkArea.Children.Add(image);
 
+                            RelicSubImage subImage = relicImage.GetSubImages()[i];
+
                             // using the row and column that we parse while loading the file
                             //   set the position on the canvas
-                            Canvas.SetTop(image, startTop + relicImage.GetSubImages()[i].top * (255 + 40));
-                            Canvas.SetLeft(image, startLeft + relicImage.GetSubImages()[i].left * (255 + 40));
+                            Canvas.SetTop(image, startTop + subImage.top * 40 + subImage.GetPosPercent().topLeft.y * relicImage.GetBitmap().Height);
+                            Canvas.SetLeft(image, startLeft + subImage.left * 40 + subImage.GetPosPercent().topLeft.x * relicImage.GetBitmap().Width);
                         }
                     }
                     else //if (relicImage.GetImageType() == RelicImage.ImageType.TXR)
@@ -371,7 +373,6 @@ namespace Relic_IC_Image_Parser
         /// <param name="e"></param>
         private void BtnAbout_Click(object sender, RoutedEventArgs e)
         {
-            // TODO proper about
             AboutWindow aboutWindow = new AboutWindow();
             aboutWindow.Owner = this;
             aboutWindow.ShowDialog();

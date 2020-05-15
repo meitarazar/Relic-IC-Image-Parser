@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -12,23 +15,100 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
     /// </summary>
     class RelicEncoder
     {
-        // static strings of the tags
-        private const string TAG_FORM = "FORM";
-        private const string TAG_PART_PICT = "PICT";
-        private const string TAG_TXTRNAME = "TXTRNAME";
-        private const string TAG_IMAGNAME = "IMAGNAME";
-        private const string TAG_VERS = "VERS";
-        private const string TAG_ATTR = "ATTR";
-        private const string TAG_DATA = "DATA";
-        private const string TAG_RECT = "RECT";
-        private const string VAL_NOBS = "NOBS";
+        // static strings for tags
+        private const string TAG_ATTR      = "ATTR";
+        private const string TAG_DATA      = "DATA";
+        private const string TAG_FORM      = "FORM";
+        private const string TAG_IMAGNAME  = "IMAGNAME";
+        private const string TAG_RECT      = "RECT";
+        private const string TAG_TXTRNAME  = "TXTRNAME";
+        private const string TAG_VERS      = "VERS";
 
-        // TODO doc
+        // static strings for partial tags
+        private const string TAG_PART_PICT = "PICT";
+
+        // static strings for values
+        private const string VAL_NOBS      = "NOBS";
+
+        /// <summary>
+        /// Encode SPT.
+        /// <para>Only the source image and the file to write to is needed, the image will be
+        /// plistted into sub images based on the best <i><b>current</b></i> optimization algorithm</para>
+        /// </summary>
+        /// <param name="bitmapSource">The bitmap to encode.</param>
+        /// <param name="fileStream">The file to write to.</param>
         public static void EncodeSpt(BitmapSource bitmapSource, FileStream fileStream)
         {
-            string txtrName = "C:\\SomeImage00.tga";
+            // TODO implement splitting for optimization
+            string txtrName = "C:\\SomeImage";
+            string txtrExtension = ".tga";
 
-            int fixedWidth = 1;
+            int width = bitmapSource.PixelWidth;
+            int height = bitmapSource.PixelHeight;
+
+            int[] widthCuts = CalcCuts(width);
+            int[] heightCuts = CalcCuts(height);
+
+            float posStartX = 0;
+            RectForm[] rectForms = new RectForm[widthCuts.Length * heightCuts.Length];
+            for (int w = 0; w < widthCuts.Length; w++)
+            {
+                float posStartY = 0;
+                for (int h = 0; h < heightCuts.Length; h++)
+                {
+                    float posEndX = posStartX + widthCuts[w];
+                    float posEndY = posStartY + heightCuts[h];
+
+                    int arrPos = (w * heightCuts.Length) + h;
+                    rectForms[arrPos] = new RectForm(
+                        string.Format("{0}{1}{2}", txtrName, arrPos.ToString("D2"), txtrExtension),
+                        new float[] { posStartX / width, posEndX / width, posStartY / height, posEndY / height },
+                        new float[] { 0, 1, 1, 0 }
+                        );
+                    posStartY += heightCuts[h];
+                }
+                posStartX += widthCuts[w];
+            }
+
+            SubImagForm[] subImags = CreateSubImageFormsFromRects(bitmapSource, rectForms);
+
+            SubTxtrForm[] subTxtrs = CreateSubTxtrForms(subImags);
+
+            // prepare txtrs data
+            byte[] subTxtrFormsData = new byte[0];
+            foreach (SubTxtrForm subTxtr in subTxtrs)
+            {
+                subTxtrFormsData = MergeArrays(subTxtrFormsData, subTxtr.GetFormAsBytes());
+            }
+
+            // prepare rects data
+            byte[] rectFormsData = new byte[0];
+            foreach (RectForm rectForm in rectForms)
+            {
+                rectFormsData = MergeArrays(rectFormsData, rectForm.GetFormAsBytes());
+            }
+
+            // create the full file 'FORM'
+            byte[] form = new byte[0];
+
+            AddTag(ref form, TAG_FORM);
+            AddTagLength(ref form, 4);
+            AddString(ref form, VAL_NOBS);
+
+            AddTag(ref form, TAG_FORM);
+            AddTagLength(ref form, subTxtrFormsData.Length + rectFormsData.Length + 4);
+
+            // the full first form name is 'PICTFORM'
+            //  so we just add the 'PICT' before the 'FORM'
+            AddString(ref form, TAG_PART_PICT);
+
+            form = MergeArrays(form, subTxtrFormsData);
+
+            form = MergeArrays(form, rectFormsData);
+
+            fileStream.Write(form, 0, form.Length);
+
+            /*int fixedWidth = 1;
             int fixedHeight = 1;
             while (fixedWidth < bitmapSource.PixelWidth)
             {
@@ -79,15 +159,120 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
             AddString(ref form, VAL_NOBS);
 
             AddTag(ref form, TAG_FORM);
-            AddTagLength(ref form, subTxtrFormData.Length + rectFormData.Length + 4);
+            AddTagLength(ref form, subTxtrFormsData.Length + rectFormData.Length + 4);
 
+            // the full first form name is 'PICTFORM'
+            //  so we just add the 'PICT' before the 'FORM'
             AddString(ref form, TAG_PART_PICT);
 
-            form = MergeArrays(form, subTxtrFormData);
+            form = MergeArrays(form, subTxtrFormsData);
 
             form = MergeArrays(form, rectFormData);
 
-            fileStream.Write(form, 0, form.Length);
+            fileStream.Write(form, 0, form.Length);*/
+        }
+
+        /// <summary>
+        /// TODO doc
+        /// </summary>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        private static int[] CalcCuts(int length)
+        {
+            byte[] bytes = BitConverter.GetBytes(length);
+            BitArray bits = new BitArray(bytes);
+
+            List<int> cuts = new List<int>();
+            for (int i = 0; i < bits.Length; i++)
+            {
+                if (bits[i])
+                {
+                    cuts.Add((int)Math.Pow(2, i));
+                }
+            }
+
+            int[] cutsArr = cuts.ToArray();
+            Array.Reverse(cutsArr);
+            return cutsArr;
+        }
+
+        /// <summary>
+        /// TODO doc
+        /// </summary>
+        /// <returns></returns>
+        private static SubImagForm[] CreateSubImageFormsFromRects(BitmapSource bitmapSource, RectForm[] rectForms)
+        {
+            int bitmapWidth = bitmapSource.PixelWidth;
+            int bitmapHeight = bitmapSource.PixelHeight;
+
+            PixelFormat pixelFormat = bitmapSource.Format;
+            int bitmapStride = pixelFormat.BitsPerPixel * bitmapWidth / 8;
+            byte[] flatPixels = new byte[bitmapHeight * bitmapStride];
+            bitmapSource.CopyPixels(flatPixels, bitmapStride, 0);
+
+            byte[][] bitmapPixels = new byte[bitmapHeight][];
+            for (int y = 0; y < bitmapHeight; y++) {
+                bitmapPixels[y] = new byte[bitmapStride];
+                Array.Copy(flatPixels, y * bitmapStride, bitmapPixels[y], 0, bitmapStride);
+            }
+
+            SubImagForm[] subImags = new SubImagForm[rectForms.Length];
+            for (int i = 0; i < rectForms.Length; i++)
+            {
+                RectForm rectForm = rectForms[i];
+
+                int x = (int)Math.Round(bitmapWidth * BitConverter.ToSingle(rectForm.pos, 0));
+                int y = (int)Math.Round(bitmapHeight * BitConverter.ToSingle(rectForm.pos, 8));
+
+                int width = Math.Abs((int)Math.Round(bitmapWidth * BitConverter.ToSingle(rectForm.pos, 4)) - x);
+                int height = Math.Abs((int)Math.Round(bitmapHeight * BitConverter.ToSingle(rectForm.pos, 12)) - y);
+
+                int stride = pixelFormat.BitsPerPixel * width / 8;
+                byte[] pixels = new byte[height * stride];
+
+                for (int h = 0; h < height; h++)
+                {
+                    Array.Copy(bitmapPixels[y + h], x * 4, pixels, (height - h - 1) * stride, stride);
+                }
+
+                /*BitmapSource bitmapTest = BitmapSource.Create(width, height, 96, 96, pixelFormat, null, pixels, stride);
+                BitmapFrame bitmapFrame = BitmapFrame.Create(bitmapTest);
+                PngBitmapEncoder encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(bitmapFrame);
+                FileStream fileStream = File.OpenWrite(rectForm.txtrName.Substring(3, 12) + "png");
+                encoder.Save(fileStream);
+                fileStream.Close();*/
+
+                subImags[i] = new SubImagForm(
+                    rectForm.txtrName + "\0",
+                    1,
+                    new int[] { 0, width, height, pixels.Length },
+                    stride,
+                    pixels
+                    );
+            }
+            return subImags;
+        }
+
+        /// <summary>
+        /// TODO doc
+        /// </summary>
+        /// <param name="subImagForms"></param>
+        /// <returns></returns>
+        private static SubTxtrForm[] CreateSubTxtrForms(SubImagForm[] subImagForms)
+        {
+            SubTxtrForm[] subTxtrs = new SubTxtrForm[subImagForms.Length];
+            for (int i = 0; i < subImagForms.Length; i++)
+            {
+                SubImagForm subImag = subImagForms[i];
+                subTxtrs[i] = new SubTxtrForm(
+                    subImag.imagName,
+                    3,
+                    new int[] { 1, BitConverter.ToInt32(subImag.attr, 4), BitConverter.ToInt32(subImag.attr, 8), 1 },
+                    new SubImagForm[] { subImag }
+                    );
+            }
+            return subTxtrs;
         }
         
         /// <summary>
@@ -100,7 +285,7 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
         public static void EncodeTxr(string txtrDataPath, BitmapSource bitmapSource, FileStream fileStream)
         {
             // Gets all the sub image 'FORM's
-            SubImagForm[] subImags = CreateSubImagForms(bitmapSource);
+            SubImagForm[] subImags = CreateSubScaledImagForms(bitmapSource);
 
             // Creates the 'FORM' that encapsulates all the sub images
             SubTxtrForm subTxtrForm = new SubTxtrForm(
@@ -123,11 +308,11 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
         }
 
         /// <summary>
-        /// Constructs the sub image 'FORM's.
+        /// Constructs the sub image 'FORM's of TXR format.
         /// </summary>
         /// <param name="bitmapSource">The largest bitmap.</param>
         /// <returns></returns>
-        private static SubImagForm[] CreateSubImagForms(BitmapSource bitmapSource)
+        private static SubImagForm[] CreateSubScaledImagForms(BitmapSource bitmapSource)
         {
             // calc how many to create
             int minSize = Math.Min(bitmapSource.PixelWidth, bitmapSource.PixelHeight);
@@ -478,7 +663,11 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
             }
         }
 
-        // TODO doc
+        /// <summary>
+        /// For SPT there is a need for rectangle clipping inside the canvas of the sub images.
+        /// This class is meant to answer that need, by having the subImage name to link to,
+        /// the positioning data in the complete image and the clipping data for its own canvas.
+        /// </summary>
         private class RectForm
         {
             public readonly int formSize = -1;
