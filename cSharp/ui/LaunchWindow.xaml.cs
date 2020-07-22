@@ -1,12 +1,8 @@
 ﻿using Relic_IC_Image_Parser.cSharp.data;
-using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.ComponentModel;
-using System.IO;
+using Relic_IC_Image_Parser.cSharp.util;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Forms;
 using System.Windows.Input;
 
 namespace Relic_IC_Image_Parser
@@ -18,6 +14,8 @@ namespace Relic_IC_Image_Parser
     {
         public LaunchWindow()
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Inithializing");
+
             InitializeComponent();
 
             InitSelf();
@@ -62,6 +60,7 @@ namespace Relic_IC_Image_Parser
         /// <param name="e">The event data.</param>
         private void BtnOpenFile_Click(object sender, RoutedEventArgs e)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Opening new file...");
             DataManager.OpenFile(this);
         }
 
@@ -72,6 +71,7 @@ namespace Relic_IC_Image_Parser
         /// <param name="e">The event data.</param>
         private void RecentItems_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Opening file from recent...");
             if (e.AddedItems.Count > 0)
             {
                 DataManager.SelectFromRecentFilesList(RecentItems, (string)e.AddedItems[0]);
@@ -85,6 +85,7 @@ namespace Relic_IC_Image_Parser
         /// <param name="e">The event data.</param>
         private void BtnClose_Click(object sender, RoutedEventArgs e)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Close.");
             Close();
         }
     }

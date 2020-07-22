@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Relic_IC_Image_Parser.cSharp.util;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -23,15 +25,20 @@ namespace Relic_IC_Image_Parser.cSharp.ui
     {
         public AboutWindow()
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Inithializing");
+
             InitializeComponent();
 
             Title += App.AppName;
 
             VersionBlock.Text = App.AppName + " - v" + App.VersionName;
+
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "About " + VersionBlock.Text);
         }
 
         private void LaunchLink(string uri)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Opening link: " + uri);
             Process.Start(new ProcessStartInfo(uri));
         }
 

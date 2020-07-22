@@ -1,6 +1,8 @@
 ﻿using Relic_IC_Image_Parser.cSharp.data;
 using Relic_IC_Image_Parser.cSharp.imaging;
+using Relic_IC_Image_Parser.cSharp.util;
 using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using static Relic_IC_Image_Parser.cSharp.imaging.ImageManager;
@@ -17,10 +19,14 @@ namespace Relic_IC_Image_Parser.cSharp.ui
         
         public ExportWindow(FileType fileType, string fileName, BitmapSource bitmapSource)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Inithializing");
+
             InitializeComponent();
 
             if (fileType == FileType.Relic)
             {
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "File type: Relic");
+
                 ExportBmp.IsEnabled = true;
                 ExportGif.IsEnabled = true;
                 ExportJpg.IsEnabled = true;
@@ -29,6 +35,8 @@ namespace Relic_IC_Image_Parser.cSharp.ui
             }
             else if (fileType == FileType.Standard)
             {
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "File type: Standard");
+
                 ExportSpt.IsEnabled = true;
                 ExportTxr.IsEnabled = true;
             }
@@ -74,6 +82,8 @@ namespace Relic_IC_Image_Parser.cSharp.ui
 
         private void Export(ExportType exportType)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Exporting as " + exportType + "...");
+
             ImageManager.ExportImage(this, exportType, bitmapSource, new FileInfo(DataManager.SaveFile(exportType, fileName)));
             Close();
         }

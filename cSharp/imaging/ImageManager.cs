@@ -1,7 +1,9 @@
 ﻿using Relic_IC_Image_Parser.cSharp.imaging.relic;
 using Relic_IC_Image_Parser.cSharp.ui;
+using Relic_IC_Image_Parser.cSharp.util;
 using System;
 using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Media.Imaging;
 
@@ -31,10 +33,14 @@ namespace Relic_IC_Image_Parser.cSharp.imaging
         /// <returns></returns>
         public static object GetImage(ref FileType fileType, string fileName)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Get image...");
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "File path: " + fileName);
+
             // test if Relic type of image
             RelicImage rImage = RelicImage.GetRelicImage(fileName);
             if (rImage != null)
             {
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Relic image not null");
                 fileType = FileType.Relic;
                 return rImage;
             }
@@ -44,6 +50,7 @@ namespace Relic_IC_Image_Parser.cSharp.imaging
                 BitmapImage bImage = GetBitmapImage(fileName);
                 if (bImage != null)
                 {
+                    Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Standard image not null");
                     fileType = FileType.Standard;
                     return bImage;
                 }
@@ -51,6 +58,7 @@ namespace Relic_IC_Image_Parser.cSharp.imaging
                 // otherwise, unknown
                 else
                 {
+                    Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Unable to parse file");
                     fileType = FileType.Unknown;
                     return null;
                 }
@@ -87,6 +95,10 @@ namespace Relic_IC_Image_Parser.cSharp.imaging
         /// <param name="fileInfo">The file info to save to.</param>
         public static void ExportImage(Window owner, ExportType exportType, BitmapSource bitmapSource, FileInfo fileInfo)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Exporting image...");
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Type: " + exportType.ToString());
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "File: " + fileInfo.ToString());
+
             // we have nothing to do if the file info is null
             if (fileInfo == null)
             {
@@ -96,6 +108,8 @@ namespace Relic_IC_Image_Parser.cSharp.imaging
             // if we are exporting TXR and the image is not properly sized, again, return
             if (exportType == ExportType.TXR && !IsValidTxrSize(bitmapSource.PixelWidth, bitmapSource.PixelHeight))
             {
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "TXR not properly sized!");
+
                 string msg = "The image you are trying to export is not a valid TXR file!\n\n" +
                     "A valid TXR width and height are of powers of 2. (..., 32, 64, 128, 256, ...)";
                 string title = "Invalid TXR File";
@@ -107,28 +121,37 @@ namespace Relic_IC_Image_Parser.cSharp.imaging
             string txtrDataPath = null;
             if (exportType == ExportType.TXR)
             {
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Constructing TXR inner path id...");
+
                 // remove extention from file name
                 string[] fileNameSplit = fileInfo.Name.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
                 string filenameNoExt = string.Join(".", fileNameSplit, 0, fileNameSplit.Length - 1);
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "File name without extension: " + filenameNoExt);
 
                 // open dialog to get the txtr data path
                 TxtrExportWindow txtrExportWindow = new TxtrExportWindow(filenameNoExt);
                 txtrExportWindow.Owner = owner;
 
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Opening dialog...");
                 // if return false, exit
                 if (!txtrExportWindow.ShowDialog().Value)
                 {
+                    Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Cancel.");
                     return;
                 }
 
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Dialog return OK");
                 // set the txtr data path
                 txtrDataPath = txtrExportWindow.txtrFilePath;
-                //txtrDataPath = "Data:Art/Textures/henchmen_henchmen_tpage_01_tga.txr";
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "TXR inner path id: " + txtrDataPath);
             }
 
             // opening a file stream to the disk
             using (FileStream fileStream = File.OpenWrite(fileInfo.FullName))
             {
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "File stream opened");
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Export type: " + exportType.ToString());
+
                 // if we are dealing with relic type of image
                 if (exportType == ExportType.SPT || exportType == ExportType.TXR)
                 {
@@ -141,6 +164,7 @@ namespace Relic_IC_Image_Parser.cSharp.imaging
                             RelicEncoder.EncodeSpt(bitmapSource, fileStream);
                             break;
                     }
+                    Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Success");
 
                     fileStream.Close();
                 }
@@ -176,6 +200,7 @@ namespace Relic_IC_Image_Parser.cSharp.imaging
                     BitmapFrame bitmapFrame = BitmapFrame.Create(bitmapSource);
                     encoder.Frames.Add(bitmapFrame);
                     encoder.Save(fileStream);
+                    Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Success");
                     fileStream.Close();
                 }
             }

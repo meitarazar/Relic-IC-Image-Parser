@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Relic_IC_Image_Parser.cSharp.util;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -38,8 +40,9 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
         /// <param name="fileStream">The file to write to.</param>
         public static void EncodeSpt(BitmapSource bitmapSource, FileStream fileStream)
         {
-            // TODO implement splitting for optimization
-            string txtrName = "C:\\SomeImage";
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Encoding SPT...");
+
+            string txtrName = "C:\\Exported\\From\\Relic_IC_Image_Parser\\By\\MightySarion";
             string txtrExtension = ".tga";
 
             int width = bitmapSource.PixelWidth;
@@ -50,6 +53,8 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
 
             float posStartX = 0;
             RectForm[] rectForms = new RectForm[widthCuts.Length * heightCuts.Length];
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Number of sub images: " + rectForms.Length);
+
             for (int w = 0; w < widthCuts.Length; w++)
             {
                 float posStartY = 0;
@@ -69,10 +74,13 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
                 posStartX += widthCuts[w];
             }
 
+            //Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Creating sub images...");
             SubImagForm[] subImags = CreateSubImageFormsFromRects(bitmapSource, rectForms);
 
+            //Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Creating texture forms...");
             SubTxtrForm[] subTxtrs = CreateSubTxtrForms(subImags);
 
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Preparing data...");
             // prepare txtrs data
             byte[] subTxtrFormsData = new byte[0];
             foreach (SubTxtrForm subTxtr in subTxtrs)
@@ -87,6 +95,7 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
                 rectFormsData = MergeArrays(rectFormsData, rectForm.GetFormAsBytes());
             }
 
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Constructing data...");
             // create the full file 'FORM'
             byte[] form = new byte[0];
 
@@ -105,6 +114,7 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
 
             form = MergeArrays(form, rectFormsData);
 
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Writing to file...");
             fileStream.Write(form, 0, form.Length);
 
             /*int fixedWidth = 1;
@@ -169,6 +179,8 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
             form = MergeArrays(form, rectFormData);
 
             fileStream.Write(form, 0, form.Length);*/
+
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Done.");
         }
 
         /// <summary>
@@ -178,6 +190,8 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
         /// <returns></returns>
         private static int[] CalcCuts(int length)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Calculating cuts of length...");
+
             byte[] bytes = BitConverter.GetBytes(length);
             BitArray bits = new BitArray(bytes);
 
@@ -192,6 +206,8 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
 
             int[] cutsArr = cuts.ToArray();
             Array.Reverse(cutsArr);
+
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Final cuts: " + string.Join(", ", cutsArr));
             return cutsArr;
         }
 
@@ -201,6 +217,8 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
         /// <returns></returns>
         private static SubImagForm[] CreateSubImageFormsFromRects(BitmapSource bitmapSource, RectForm[] rectForms)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Creating sub image forms from RECTs...");
+
             int bitmapWidth = bitmapSource.PixelWidth;
             int bitmapHeight = bitmapSource.PixelHeight;
 
@@ -249,7 +267,10 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
                     stride,
                     pixels
                     );
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Sub image form #" + subImags.Length);
             }
+
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Total of " + subImags.Length + " sub image forms");
             return subImags;
         }
 
@@ -260,6 +281,8 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
         /// <returns></returns>
         private static SubTxtrForm[] CreateSubTxtrForms(SubImagForm[] subImagForms)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Creating texture forms...");
+
             SubTxtrForm[] subTxtrs = new SubTxtrForm[subImagForms.Length];
             for (int i = 0; i < subImagForms.Length; i++)
             {
@@ -270,7 +293,10 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
                     new int[] { 1, BitConverter.ToInt32(subImag.attr, 4), BitConverter.ToInt32(subImag.attr, 8), 1 },
                     new SubImagForm[] { subImag }
                     );
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Texture form #" + subTxtrs.Length);
             }
+
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Total of " + subTxtrs.Length + " texture forms");
             return subTxtrs;
         }
         
@@ -283,9 +309,12 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
         /// <param name="fileStream">The file to write to.</param>
         public static void EncodeTxr(string txtrDataPath, BitmapSource bitmapSource, FileStream fileStream)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Encoding TXR...");
+
             // Gets all the sub image 'FORM's
             SubImagForm[] subImags = CreateSubScaledImagForms(bitmapSource);
 
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Creating texture form...");
             // Creates the 'FORM' that encapsulates all the sub images
             SubTxtrForm subTxtrForm = new SubTxtrForm(
                 txtrDataPath, 
@@ -294,6 +323,7 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
                 subImags
                 );
 
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Constructing data...");
             // Create the full file 'FORM'
             byte[] form = new byte[0];
 
@@ -303,7 +333,9 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
 
             form = MergeArrays(form, subTxtrForm.GetFormAsBytes());
 
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Writing to file...");
             fileStream.Write(form, 0, form.Length);
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Done.");
         }
 
         /// <summary>
@@ -313,6 +345,8 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
         /// <returns></returns>
         private static SubImagForm[] CreateSubScaledImagForms(BitmapSource bitmapSource)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Creating sub scaled textures...");
+
             // calc how many to create
             int minSize = Math.Min(bitmapSource.PixelWidth, bitmapSource.PixelHeight);
             int subCount = 1;
@@ -321,24 +355,28 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
                 minSize /= 2;
                 subCount++;
             }
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, subCount + " sub scaled textures needed");
 
             // create all scaled bitmaps and extract the pixels
             TransformedBitmap[] transformedBitmaps = CreateSubScaledTxtrs(subCount, bitmapSource);
             byte[][] subImagPixelData = ExtractSubScaledTxtrsData(transformedBitmaps);
 
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Creating sub image forms...");
             // buld each 'FORM' with the image and pixels data
             SubImagForm[] subImags = new SubImagForm[subCount];
             for (int i = 0; i < subCount; i++)
             {
                 subImags[i] = new SubImagForm(
-                    (i == 0 ? "S:\\DataSrc\\Art\\Structures\\Lab\\MODEL\\LabMain_11.bmp\0" : "\0"),
+                    (i == 0 ? "C:\\Exported\\From\\Relic_IC_Image_Parser\\By\\MightySarion.bmp\0" : "\0"),
                     1,
                     new int[] { 0, transformedBitmaps[i].PixelWidth, transformedBitmaps[i].PixelHeight, subImagPixelData[i].Length},
                     0,
                     subImagPixelData[i]
                     );
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Sub image form #" + subImags.Length);
             }
 
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Total of " + subImags.Length + " sub image forms");
             return subImags;
         }
 
@@ -350,6 +388,8 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
         /// <returns>A list of all the smaller scaled bitmaps including the largest.</returns>
         private static TransformedBitmap[] CreateSubScaledTxtrs(int count, BitmapSource bitmapSource)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Sub scaling textures...");
+
             TransformedBitmap[] transformedBitmaps = new TransformedBitmap[count];
 
             for (int i = 0; i < count; i++)
@@ -364,6 +404,7 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
                 }
             }
 
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Total of " + transformedBitmaps.Length + " Sub scaled textures");
             return transformedBitmaps;
         }
 
@@ -374,6 +415,8 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
         /// <returns>Two dimentional array that represents the raw pixels for each bitmap.</returns>
         private static byte[][] ExtractSubScaledTxtrsData(TransformedBitmap[] transformedBitmaps)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Extracting sub scaled texture's pixels...");
+
             byte[][] subTxtrs = new byte[transformedBitmaps.Length][];
 
             PixelFormat pixelFormat = transformedBitmaps[0].Format;
@@ -387,8 +430,10 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
                 // remember that TXR is vertically flipped? so yeah...
                 //   we flipped it while importing, and we need to flip it back
                 subTxtrs[i] = RelicImage.ReverseTxrData(width, pixels);
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Extraction #" + subTxtrs.Length);
             }
 
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Total of " + subTxtrs.Length + " sub scaled texture's pixel data were extracted");
             return subTxtrs;
         }
 

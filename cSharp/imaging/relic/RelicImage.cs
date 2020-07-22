@@ -1,7 +1,9 @@
 ﻿using Relic_IC_Image_Parser.cSharp.data;
+using Relic_IC_Image_Parser.cSharp.util;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using static Relic_IC_Image_Parser.Coordinates;
@@ -46,27 +48,35 @@ namespace Relic_IC_Image_Parser
         /// <returns></returns>
         public static RelicImage GetRelicImage(string fullFileName)
         {
-            FileStream stream = RelicDecoder.OpenStream(fullFileName);
-            if (RelicDecoder.IsRelicFile(stream))
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Get Relic image...");
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "File path: " + fullFileName);
+
+            using (FileStream stream = RelicDecoder.OpenStream(fullFileName))
             {
-                List<RelicTag> relicTags = RelicDecoder.ReadAllTags(stream);
-                
-                // if we have null tags that must mean that the format is unknown to us
-                //   (until someone make an upgrade... *wink* *wink*)
-                if (RelicDecoder.HasNullTags(relicTags))
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "File stream opened");
+                if (RelicDecoder.IsRelicFile(stream))
                 {
-                    return null;
+                    Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Relic file confirmed");
+                    List<RelicTag> relicTags = RelicDecoder.ReadAllTags(stream);
+
+                    // if we have null tags that must mean that the format is unknown to us
+                    //   (until someone make an upgrade... *wink* *wink*)
+                    if (RelicDecoder.HasNullTags(relicTags))
+                    {
+                        return null;
+                    }
+
+                    // based on super sophisticated shit, determining the Relic image type
+                    //   (I dare you to look inside this function!)
+                    ImageType imageType = RelicDecoder.AnalyzeTags(relicTags);
+
+                    // the actual sub image extraction
+                    List<RelicSubImage> subImages = RelicDecoder.DecodeImage(relicTags);
+
+                    Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Return new RelicImage");
+                    // done, it wasn't easy, but we are done
+                    return new RelicImage(imageType, new FileInfo(fullFileName), subImages);
                 }
-
-                // based on super sophisticated shit, determining the Relic image type
-                //   (I dare you to look inside this function!)
-                ImageType imageType = RelicDecoder.AnalyzeTags(relicTags);
-
-                // the actual sub image extraction
-                List<RelicSubImage> subImages = RelicDecoder.DecodeImage(relicTags);
-
-                // done, it wasn't easy, but we are done
-                return new RelicImage(imageType, new FileInfo(fullFileName), subImages);
             }
 
             // yes, we might get some hiccups along the way so, we just give up.

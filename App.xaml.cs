@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Relic_IC_Image_Parser.cSharp.util;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Windows;
@@ -29,10 +31,14 @@ namespace Relic_IC_Image_Parser
         {
             base.OnStartup(e);
 
+            Logger.InitLog();
+
             LoadArguments(e.Args);
 
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Not existing files: " + string.Join(", ", notExistFiles));
             CheckNotExistFiles();
 
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Existing files: " + string.Join(", ", existFiles));
             LoadExistFilesOrOpenLauncher();
         }
 
@@ -42,6 +48,8 @@ namespace Relic_IC_Image_Parser
         /// <param name="args">The arguments array received.</param>
         private void LoadArguments(string[] args)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Loading args...");
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Args: " + string.Join(", ", args));
             foreach (string file in args)
             {
                 if (File.Exists(file))
@@ -90,6 +98,8 @@ namespace Relic_IC_Image_Parser
             // if no existing files were provided, open Launcher
             else
             {
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Opening LaunchWindow...");
+
                 LaunchWindow launcher = new LaunchWindow();
                 launcher.Show();
             }

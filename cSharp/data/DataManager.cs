@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Relic_IC_Image_Parser.cSharp.util;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Forms;
 using static Relic_IC_Image_Parser.cSharp.imaging.ImageManager;
@@ -32,9 +34,9 @@ namespace Relic_IC_Image_Parser.cSharp.data
         private static readonly int recentFilesCount = int.Parse(appSettings.Settings[SETTINGS_RECENT_FILES_COUNT].Value);
         private static readonly List<string> recentFiles = new List<string>(appSettings.Settings[SETTINGS_RECENT_FILES].Value.Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries));
         public static readonly double relicImageDpi = double.Parse(appSettings.Settings[SETTINGS_RELIC_IMAGE_DPI].Value);
-        private static readonly bool logTake = bool.Parse(appSettings.Settings[SETTINGS_LOG_TAKE].Value);
-        private static readonly string logPath = appSettings.Settings[SETTINGS_LOG_PATH].Value;
-        private static readonly string logFile = appSettings.Settings[SETTINGS_LOG_FILE].Value;
+        public static readonly bool logTake = bool.Parse(appSettings.Settings[SETTINGS_LOG_TAKE].Value);
+        public static readonly string logPath = appSettings.Settings[SETTINGS_LOG_PATH].Value;
+        public static readonly string logFile = appSettings.Settings[SETTINGS_LOG_FILE].Value;
 
         // Custom init OpenFileDialog
         private static readonly OpenFileDialog fileChooser;
@@ -44,6 +46,8 @@ namespace Relic_IC_Image_Parser.cSharp.data
         /// </summary>
         static DataManager()
         {
+            //Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Inithializing");
+
             fileChooser = new OpenFileDialog
             {
                 Title = "Choose an Image File",
@@ -64,6 +68,7 @@ namespace Relic_IC_Image_Parser.cSharp.data
 
                 Multiselect = true
             };
+            //Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "[OpenFileDialog]: " + fileChooser.ToString());
         }
 
         /// <summary>
@@ -72,6 +77,8 @@ namespace Relic_IC_Image_Parser.cSharp.data
         /// <param name="listBox">The <see cref="ListBox"/> to populate.</param>
         public static void PopulateRecentFilesList(System.Windows.Controls.ListBox listBox)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Populating recent files list...");
+
             List<string> items = new List<string>(recentFiles.Count);
             foreach (string item in recentFiles)
             {
@@ -81,6 +88,7 @@ namespace Relic_IC_Image_Parser.cSharp.data
                 items.Add(info.Name + ITEM_INNER_DIVIDER + info.DirectoryName);
 
             }
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Recent files: " + string.Join(", ", items));
 
             // Set the list's new items
             listBox.ItemsSource = items;
@@ -97,17 +105,23 @@ namespace Relic_IC_Image_Parser.cSharp.data
         /// <param name="itemContent">The item' Text field string.</param>
         public static void SelectFromRecentFilesList(System.Windows.Controls.ListBox listBox, string itemContent)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Recent file was selected");
+
             // reconstructs the full file path
             string[] item = itemContent.Split(new string[] { ITEM_INNER_DIVIDER }, StringSplitOptions.None);
             string fullName = item[1] + "\\" + item[0];
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "File path: " + fullName);
 
             if (File.Exists(fullName))
             {
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "File exists.");
                 PopFileToRecentTop(fullName);
                 OpenEditorWindow(Window.GetWindow(listBox), fullName);
             }
             else
             {
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "File does not exists!");
+
                 // prompt a message box to ask the user
                 // do you want to remove the file from recent files list?
                 string msg = "The file:\n" +
@@ -117,6 +131,8 @@ namespace Relic_IC_Image_Parser.cSharp.data
 
                 if (result == MessageBoxResult.Yes)
                 {
+                    Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Removing not existing file");
+
                     recentFiles.Remove(fullName);
                     appSettings.Settings[SETTINGS_RECENT_FILES].Value = string.Join(";", recentFiles);
                     configuration.Save();
@@ -133,6 +149,9 @@ namespace Relic_IC_Image_Parser.cSharp.data
         /// <param name="fullFileName">The file path to open in the editor.</param>
         private static void OpenEditorWindow(Window window, string fullFileName)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Openning EditorWindow...");
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "File path: " + fullFileName);
+
             // append another editor window to the count
             App.editorsOpen++;
 
@@ -143,6 +162,7 @@ namespace Relic_IC_Image_Parser.cSharp.data
             // close if launcher
             if (window is LaunchWindow)
             {
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Closing LaunchWindow");
                 window.Close();
             }
         }
@@ -153,21 +173,28 @@ namespace Relic_IC_Image_Parser.cSharp.data
         /// <param name="fileName">The file path to put on top of the list.</param>
         private static void PopFileToRecentTop(string fileName)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Puting file at recent files top...");
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "File path: " + fileName);
+
             // if we already contains it, remove it to reposition on top
             if (recentFiles.Contains(fileName))
             {
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "The file exists in the list, removing...");
                 recentFiles.Remove(fileName);
             }
 
             // if we have exceeded the count limit, remove the last one
             else if (recentFiles.Count == recentFilesCount)
             {
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Max capacity has been reached, removing last file...");
                 recentFiles.RemoveAt(recentFiles.Count - 1);
             }
 
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Puting file at the top");
             // put the file on top
             recentFiles.Insert(0, fileName);
 
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Updating settings");
             // update settings and save
             appSettings.Settings[SETTINGS_RECENT_FILES].Value = string.Join(";", recentFiles);
             configuration.Save();
@@ -179,13 +206,23 @@ namespace Relic_IC_Image_Parser.cSharp.data
         /// <param name="window">The calling window.</param>
         public static void OpenFile(Window window)
         {
-            if (fileChooser.ShowDialog() == DialogResult.OK)
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Opening file chooser dialog...");
+
+            DialogResult result = fileChooser.ShowDialog();
+            if (result == DialogResult.OK)
             {
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Dialog return OK");
+
                 // if dialog returns OK open file in editor
                 string fileName = fileChooser.FileName;
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "File name: " + fileName);
+
                 PopFileToRecentTop(fileName);
                 OpenEditorWindow(window, fileName);
+                return;
             }
+
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Dialog return: " + result.ToString());
         }
 
         /// <summary>
@@ -196,9 +233,12 @@ namespace Relic_IC_Image_Parser.cSharp.data
         /// <returns>If the dialog returns OK return file path, otherwise return null.</returns>
         public static string SaveFile(ExportType exportType, string fileName)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Preparing for file save...");
+
             // remove the extention from file name
             string[] fileNameSplit = fileName.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
             string filenameNoExt = string.Join(".", fileNameSplit, 0, fileNameSplit.Length - 1);
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "File name without extension: " + filenameNoExt);
 
             SaveFileDialog saveFileDialog = new SaveFileDialog()
             {
@@ -233,12 +273,18 @@ namespace Relic_IC_Image_Parser.cSharp.data
                     saveFileDialog.Filter = "Relic Texture format (*.txr)|*.txr";
                     break;
             }
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Filter: " + saveFileDialog.Filter);
 
-            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Opening save file dialog...");
+            DialogResult result = saveFileDialog.ShowDialog();
+            if (result == DialogResult.OK)
             {
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Dialog return OK");
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "File path: " + saveFileDialog.FileName);
                 return saveFileDialog.FileName;
             }
 
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Dialog return: " + result.ToString());
             return null;
         }
     }

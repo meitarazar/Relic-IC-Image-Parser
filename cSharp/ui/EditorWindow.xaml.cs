@@ -1,10 +1,12 @@
 ﻿using Relic_IC_Image_Parser.cSharp.data;
 using Relic_IC_Image_Parser.cSharp.imaging;
 using Relic_IC_Image_Parser.cSharp.ui;
+using Relic_IC_Image_Parser.cSharp.util;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -33,24 +35,30 @@ namespace Relic_IC_Image_Parser
         /// <param name="fullFileName"></param>
         public EditorWindow(string fullFileName)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Inithializing");
+
             InitializeComponent();
 
             myFile = new FileInfo(fullFileName);
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "File name: " + fullFileName);
 
             Title = myFile.Name + " - " + App.AppName;
 
             TextBox.Text = "Use your mouse to drag the image on the canvas.\n" + 
                 "Use your mouse wheel to zoom in and out.";
 
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Get image...");
             image = ImageManager.GetImage(ref fileType, fullFileName);
             if (fileType == FileType.Relic)
             {
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "File is Relic, enable toggle mode");
                 BtnToggleView.IsEnabled = ((RelicImage)image).GetSubImages().Count > 1;
             }
 
             // if we succeeded display the image
             if (image != null)
             {
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Image not null, displaying image...");
                 DisplayFullImage();
             }
         }
@@ -60,6 +68,8 @@ namespace Relic_IC_Image_Parser
             base.OnActivated(e);
             if (fileType == FileType.Unknown)
             {
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Oops... could not parse file...");
+
                 string msg = "The file you are trying to open is not supported" + 
                     " or it might be a damaged file.\n\n" + 
                     "If it's an SPT or TXR file it might be written in different format or empty" + 
@@ -78,6 +88,8 @@ namespace Relic_IC_Image_Parser
         /// <param name="text">The text to show</param>
         private void DisplayText(string text)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Display: " + text);
+
             TextBlock block = new TextBlock();
 
             // set up properties
@@ -102,10 +114,13 @@ namespace Relic_IC_Image_Parser
             // get the bitmap based on type
             if (fileType == FileType.Relic)
             {
+
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Display Relic Full image");
                 fullImage.Source = ((RelicImage)image).GetBitmap();
             }
             else //if (fileType == FileType.Standard)
             {
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Display standart image");
                 fullImage.Source = (BitmapImage)image;
             }
 
@@ -127,22 +142,30 @@ namespace Relic_IC_Image_Parser
         /// </summary>
         private void DisplaySubImages()
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Display sub images...");
+
             fullImage = null;
 
             // only Relic image has sub images
             if (fileType == FileType.Relic)
             {
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "File is Relic, working...");
+
                 RelicImage relicImage = (RelicImage)image;
                 List<BitmapSource> subImages = relicImage.GetSubBitmaps();
 
                 // there is no point to display the sub images if there is only one
                 if (subImages.Count > 1)
                 {
+                    Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "More than one sub image");
+
                     // set title
                     DisplayText("Inner Images");
 
                     if (relicImage.GetImageType() == RelicImage.ImageType.SPT)
                     {
+                        Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Table layout of SPT");
+
                         double startTop = 40;
                         double startLeft = 40;
                         for (int i = 0; i < subImages.Count; i++)
@@ -161,6 +184,8 @@ namespace Relic_IC_Image_Parser
                     }
                     else //if (relicImage.GetImageType() == RelicImage.ImageType.TXR)
                     {
+                        Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Horizontal layout of TXR");
+
                         double lastLeft = 40;
                         for (int i = 0; i < subImages.Count; i++)
                         {
@@ -182,10 +207,11 @@ namespace Relic_IC_Image_Parser
             //  BECAUSE THEY KNOW ITS DUMB!!!
             else
             {
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "File is not Relic, aborting...");
                 DisplayText("No Inner Images");
             }
 
-            // set the current state to full image
+            // set the current state to sub images
             BtnExport.IsEnabled = false;
             isFullImage = false;
         }
@@ -305,6 +331,7 @@ namespace Relic_IC_Image_Parser
         /// <param name="e"></param>
         private void BtnOpenFile_Click(object sender, RoutedEventArgs e)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Open new file...");
             DataManager.OpenFile(this);
         }
 
@@ -316,6 +343,8 @@ namespace Relic_IC_Image_Parser
         /// <param name="e"></param>
         private void BtnExport_Click(object sender, RoutedEventArgs e)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Exporting...");
+
             if (isFullImage && (fileType == FileType.Relic || fileType == FileType.Standard))
             {
                 ExportWindow exportWindow = new ExportWindow(fileType, myFile.Name, (BitmapSource)fullImage.Source.Clone());
@@ -331,6 +360,8 @@ namespace Relic_IC_Image_Parser
         /// <param name="e"></param>
         private void BtnResetView_Click(object sender, RoutedEventArgs e)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Reset canvas");
+
             TransformGroup group = (TransformGroup)WorkArea.RenderTransform;
 
             for (int i = 0; i < group.Children.Count; i++)
@@ -353,6 +384,8 @@ namespace Relic_IC_Image_Parser
         /// <param name="e"></param>
         private void BtnToggleView_Click(object sender, RoutedEventArgs e)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Toggle view");
+
             BtnResetView_Click(null, null);
             WorkArea.Children.Clear();
 
@@ -373,6 +406,8 @@ namespace Relic_IC_Image_Parser
         /// <param name="e"></param>
         private void BtnAbout_Click(object sender, RoutedEventArgs e)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Open about");
+
             AboutWindow aboutWindow = new AboutWindow();
             aboutWindow.Owner = this;
             aboutWindow.ShowDialog();
@@ -384,9 +419,12 @@ namespace Relic_IC_Image_Parser
         /// <param name="e"></param>
         protected override void OnClosing(CancelEventArgs e)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Close.");
+
             App.editorsOpen--;
             if (App.editorsOpen == 0)
             {
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Last editor, open LaunchWindow");
                 LaunchWindow launcher = new LaunchWindow();
                 launcher.Show();
             }

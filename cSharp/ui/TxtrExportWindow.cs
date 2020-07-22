@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Relic_IC_Image_Parser.cSharp.util;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Media;
 
@@ -13,9 +14,12 @@ namespace Relic_IC_Image_Parser.cSharp.ui
         
         public TxtrExportWindow(string fileName)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Inithializing");
+
             InitializeComponent();
 
             TextBoxFileName.Text = fileName;
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "File name: " + fileName);
         }
 
         /// <summary>
@@ -25,6 +29,8 @@ namespace Relic_IC_Image_Parser.cSharp.ui
         /// <param name="e"></param>
         private void RadioDefault_Checked(object sender, RoutedEventArgs e)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Texture path: Art/Textures/");
+
             if (TextBoxPath != null)
             {
                 TextBoxPath.Text = "Art/Textures/";
@@ -39,6 +45,8 @@ namespace Relic_IC_Image_Parser.cSharp.ui
         /// <param name="e"></param>
         private void RadioCustom_Checked(object sender, RoutedEventArgs e)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Texture path: [custom]");
+
             if (TextBoxPath != null) {
                 TextBoxPath.IsEnabled = true;
             }
@@ -61,10 +69,14 @@ namespace Relic_IC_Image_Parser.cSharp.ui
         /// <param name="e"></param>
         private void BtnOK_Click(object sender, RoutedEventArgs e)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Testing path...");
+
             // here we check if the path ends with a slash char
             string path = TextBoxPath.Text;
             if (!path.Substring(path.Length - 1).Equals("/"))
             {
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Path not ending with '/'");
+
                 // if we don't, mark the path text box with red border for error
                 TextBoxPath.BorderBrush = new SolidColorBrush(Colors.Red);
                 return;
@@ -73,11 +85,14 @@ namespace Relic_IC_Image_Parser.cSharp.ui
             // everything is fine, make sure the dialog returns true and set the TxtrFilePath
             DialogResult = true;
             txtrFilePath = "Data:" + TextBoxPath.Text + TextBoxFileName.Text + ".txr";
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Texture full path: " + txtrFilePath);
             Close();
         }
 
         private void BtnCancel_Click(object sender, RoutedEventArgs e)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Cancel.");
+
             // canceling, make sure the dialog returns false and blank the TxtrFilePath
             DialogResult = false;
             txtrFilePath = null;

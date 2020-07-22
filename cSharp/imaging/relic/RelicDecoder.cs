@@ -1,7 +1,10 @@
-﻿using System;
+﻿using Relic_IC_Image_Parser.cSharp.util;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using static Relic_IC_Image_Parser.Coordinates;
 using static Relic_IC_Image_Parser.RelicImage;
@@ -20,8 +23,12 @@ namespace Relic_IC_Image_Parser
         /// <returns>The opened stream of the file.</returns>
         public static FileStream OpenStream(string fullFileName)
         {
-            //return new StreamReader(File.OpenRead(fullFileName));
-            return File.OpenRead(fullFileName);
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Opening new file stream...");
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "File path: " + fullFileName);
+
+            FileStream stream = File.OpenRead(fullFileName);
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Success");
+            return stream;
         }
 
         /// <summary>
@@ -32,16 +39,24 @@ namespace Relic_IC_Image_Parser
         /// <returns>True for valid image, and False otherwise.</returns>
         public static bool IsRelicFile(FileStream stream)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Testing for relic file...");
+
             RelicTag tag = ReadTag(stream, true);
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Tag: " + tag);
+
             if (tag == null)
             {
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Not relic file!");
                 return false;
             }
 
             if ("FORM".Equals(tag.name) && "NOBS".Equals(Encoding.ASCII.GetString(tag.data)))
             {
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Relic file with NOBS");
                 return true;
             }
+
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Umm... Not relic file?");
             return false;
         }
 
@@ -52,11 +67,15 @@ namespace Relic_IC_Image_Parser
         /// <returns>A list of all the file's tags.</returns>
         public static List<RelicTag> ReadAllTags(FileStream stream)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Reading all tags from strema...");
+
             List<RelicTag> relicTags = new List<RelicTag>();
             while (stream.Position != stream.Length)
             {
                 relicTags.Add(ReadTag(stream, false));
             }
+
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Totla of " + relicTags.Count + " tags");
             return relicTags;
         }
 
@@ -67,13 +86,18 @@ namespace Relic_IC_Image_Parser
         /// <returns>True if there is at leat one null tag, False otherwise.</returns>
         public static bool HasNullTags(List<RelicTag> tags)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Testing for null tag...");
+
             foreach (RelicTag tag in tags)
             {
                 if (tag == null)
                 {
+                    Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Null tag found!");
                     return true;
                 }
             }
+
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Null tag was not found");
             return false;
         }
 
@@ -84,13 +108,18 @@ namespace Relic_IC_Image_Parser
         /// <returns>The type of this represented relic image.</returns>
         public static ImageType AnalyzeTags(List<RelicTag> tags)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Analyzing tags...");
+
             foreach (RelicTag tag in tags)
             {
                 if ("RECT".Equals(tag.name))
                 {
+                    Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Found RECT tag, SPT file");
                     return ImageType.SPT;
                 }
             }
+
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "TXR file");
             return ImageType.TXR;
         }
 
@@ -103,6 +132,8 @@ namespace Relic_IC_Image_Parser
         /// <returns></returns>
         public static List<RelicSubImage> DecodeImage(List<RelicTag> tags)
         {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Decoding image...");
+
             bool consumeSubImageData = false;
             List<RelicSubImage> subImages = new List<RelicSubImage>();
 
@@ -114,6 +145,7 @@ namespace Relic_IC_Image_Parser
                     // convert the data to a string, because its a name
                     string imageFullName = Encoding.ASCII.GetString(tag.data).Replace("\0", "");
                     subImages.Add(new RelicSubImage(imageFullName));
+                    Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Sub img#" + subImages.Count);
 
                     // mark that we are at the start of a new sub image
                     consumeSubImageData = true;
@@ -154,6 +186,8 @@ namespace Relic_IC_Image_Parser
                         RelicSubImage image = subImages[i];
                         if (image.GetImageName().Equals(name))
                         {
+                            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "RECT of Sub img#" + (i + 1));
+
                             double[] doubleData = new double[4];
                             for (int j = nameLength + 4; j < rectData.Length; j += 4)
                             {
@@ -186,6 +220,7 @@ namespace Relic_IC_Image_Parser
                 }
             }
 
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Total of " + subImages.Count + " sub images");
             return subImages;
         }
 
@@ -197,6 +232,8 @@ namespace Relic_IC_Image_Parser
         /// <returns>The relic tag from the stream.</returns>
         private static RelicTag ReadTag(FileStream stream, bool forceDataRead)
         {
+            // TODO super log for every little detail
+
             // checking we have a valid tage name
             string tagName = ReadTagName(stream);
             if (string.IsNullOrEmpty(tagName))
