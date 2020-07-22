@@ -225,27 +225,25 @@ namespace Relic_IC_Image_Parser
         /// So we flip it back to normal when loading or flip a normal image back to the way TXR is built.
         /// </summary>
         /// <param name="imageWidth">The image width.</param>
-        /// <param name="data">The image data to reverse vertically.</param>
+        /// <param name="srcData">The image data to reverse vertically.</param>
         /// <returns>Vertically flipped image data.</returns>
-        public static byte[] ReverseTxrData(int imageWidth, byte[] data)
+        public static byte[] ReverseTxrData(int imageWidth, byte[] srcData)
         {
             // init the data we need to flip it vertically
             int bytesPerWidth = imageWidth * 4;
-            byte[] revData = new byte[data.Length];
+            byte[] destData = new byte[srcData.Length];
 
             // work our way up until the last row
-            int lastRow = revData.Length - bytesPerWidth;
-
-            for (int i = 0; i < lastRow; i += bytesPerWidth)
+            for (int destIndex = 0; destIndex < destData.Length; destIndex += bytesPerWidth)
             {
                 // on the source data work our way backwards
-                int srcIndex = data.Length - i - bytesPerWidth;
+                int srcIndex = srcData.Length - destIndex - bytesPerWidth;
 
                 // normal copy of the row (thankfuly the rows aren't flipped)
-                Array.Copy(data, srcIndex, revData, i, bytesPerWidth);
+                Array.Copy(srcData, srcIndex, destData, destIndex, bytesPerWidth);
             }
 
-            return revData;
+            return destData;
         }
 
         public ImageType GetImageType()
