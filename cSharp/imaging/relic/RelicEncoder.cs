@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -291,7 +290,7 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
             SubTxtrForm subTxtrForm = new SubTxtrForm(
                 txtrDataPath, 
                 3, 
-                new int[] { 0, bitmapSource.PixelWidth, bitmapSource.PixelHeight, subImags.Length },
+                new int[] { 1, bitmapSource.PixelWidth, bitmapSource.PixelHeight, subImags.Length },
                 subImags
                 );
 
