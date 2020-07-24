@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace Relic_IC_Image_Parser.cSharp.imaging
@@ -47,7 +48,8 @@ namespace Relic_IC_Image_Parser.cSharp.imaging
             else
             {
                 // test if standart type of image
-                BitmapImage bImage = GetBitmapImage(fileName);
+                BitmapSource bImage = GetBitmapImage(fileName);
+
                 if (bImage != null)
                 {
                     Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Standard image not null");
@@ -70,14 +72,33 @@ namespace Relic_IC_Image_Parser.cSharp.imaging
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns></returns>
-        public static BitmapImage GetBitmapImage(string fileName)
+        public static BitmapSource GetBitmapImage(string fileName)
         {
-            BitmapImage image = null;
+            BitmapSource image = null;
 
             try
             {
                 // try to open the file
                 image = new BitmapImage(new Uri(fileName));
+                /*image = new BitmapImage();
+                image.BeginInit();
+                image.UriSource = new Uri(fileName);
+                image.CacheOption = BitmapCacheOption.OnLoad;
+                image.CreateOptions = BitmapCreateOptions.IgnoreImageCache | BitmapCreateOptions.PreservePixelFormat;
+                image.EndInit();*/
+
+                //Console.Out.WriteLine(image.PixelWidth + ", " + image.PixelHeight);
+
+                FormatConvertedBitmap newFormatedBitmapSource = new FormatConvertedBitmap(image, PixelFormats.Bgra32, null, 0);
+                /*newFormatedBitmapSource.BeginInit();
+                newFormatedBitmapSource.Source = image;
+                newFormatedBitmapSource.DestinationFormat = PixelFormats.Bgra32;
+                newFormatedBitmapSource.DestinationPalette = null;
+                newFormatedBitmapSource.EndInit();*/
+
+                //Console.Out.WriteLine(newFormatedBitmapSource.PixelWidth + ", " + newFormatedBitmapSource.PixelHeight);
+
+                image = newFormatedBitmapSource.Source;
             }
             catch
             {

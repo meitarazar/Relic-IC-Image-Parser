@@ -121,7 +121,7 @@ namespace Relic_IC_Image_Parser
             else //if (fileType == FileType.Standard)
             {
                 Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Display standart image");
-                fullImage.Source = (BitmapImage)image;
+                fullImage.Source = (BitmapSource)image;
             }
 
             // append to canvas and set position
