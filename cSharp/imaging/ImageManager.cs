@@ -3,6 +3,7 @@ using Relic_IC_Image_Parser.cSharp.ui;
 using Relic_IC_Image_Parser.cSharp.util;
 using System;
 using System.IO;
+using System.Net.Cache;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Media;
@@ -74,38 +75,33 @@ namespace Relic_IC_Image_Parser.cSharp.imaging
         /// <returns></returns>
         public static BitmapSource GetBitmapImage(string fileName)
         {
-            BitmapSource image = null;
+            BitmapSource source = null;
 
             try
             {
                 // try to open the file
-                image = new BitmapImage(new Uri(fileName));
-                /*image = new BitmapImage();
+                BitmapImage image = new BitmapImage();
                 image.BeginInit();
                 image.UriSource = new Uri(fileName);
                 image.CacheOption = BitmapCacheOption.OnLoad;
-                image.CreateOptions = BitmapCreateOptions.IgnoreImageCache | BitmapCreateOptions.PreservePixelFormat;
-                image.EndInit();*/
+                image.EndInit();
 
-                //Console.Out.WriteLine(image.PixelWidth + ", " + image.PixelHeight);
+                FormatConvertedBitmap bgraImage = new FormatConvertedBitmap();
+                bgraImage.BeginInit();
+                bgraImage.Source = image;
+                bgraImage.DestinationFormat = PixelFormats.Bgra32;
+                bgraImage.DestinationPalette = null;
+                bgraImage.AlphaThreshold = 0;
+                bgraImage.EndInit();
 
-                FormatConvertedBitmap newFormatedBitmapSource = new FormatConvertedBitmap(image, PixelFormats.Bgra32, null, 0);
-                /*newFormatedBitmapSource.BeginInit();
-                newFormatedBitmapSource.Source = image;
-                newFormatedBitmapSource.DestinationFormat = PixelFormats.Bgra32;
-                newFormatedBitmapSource.DestinationPalette = null;
-                newFormatedBitmapSource.EndInit();*/
-
-                //Console.Out.WriteLine(newFormatedBitmapSource.PixelWidth + ", " + newFormatedBitmapSource.PixelHeight);
-
-                image = newFormatedBitmapSource.Source;
+                source = bgraImage.Source;
             }
             catch
             {
                 // Do nothing...
             }
 
-            return image;
+            return source;
         }
 
         /// <summary>
@@ -186,8 +182,6 @@ namespace Relic_IC_Image_Parser.cSharp.imaging
                             break;
                     }
                     Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Success");
-
-                    fileStream.Close();
                 }
 
                 // if we are dealing with standard type of image
@@ -222,7 +216,6 @@ namespace Relic_IC_Image_Parser.cSharp.imaging
                     encoder.Frames.Add(bitmapFrame);
                     encoder.Save(fileStream);
                     Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Success");
-                    fileStream.Close();
                 }
             }
         }
