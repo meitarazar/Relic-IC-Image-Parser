@@ -84,7 +84,12 @@ namespace Relic_IC_Image_Parser.cSharp.ui
         {
             Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Exporting as " + exportType + "...");
 
-            ImageManager.ExportImage(this, exportType, bitmapSource, new FileInfo(DataManager.SaveFile(exportType, fileName)));
+            string filePath = DataManager.SaveFile(exportType, fileName);
+            if (filePath == null) {
+                return;
+            }
+
+            ImageManager.ExportImage(this, exportType, bitmapSource, new FileInfo(filePath));
             Close();
         }
     }
