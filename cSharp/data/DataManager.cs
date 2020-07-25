@@ -22,6 +22,7 @@ namespace Relic_IC_Image_Parser.cSharp.data
         private const string SETTINGS_RECENT_FILES_COUNT = "recentFilesCount";
         private const string SETTINGS_RECENT_FILES = "recentFiles";
         private const string SETTINGS_RELIC_IMAGE_DPI = "relicImageDpi";
+        private const string SETTINGS_RETURN_TO_LAUNCHER = "alwaysReturnToLauncher";
         private const string SETTINGS_LOG_TAKE = "logTake";
         private const string SETTINGS_LOG_PATH = "logPath";
         private const string SETTINGS_LOG_FILE = "logFile";
@@ -34,6 +35,7 @@ namespace Relic_IC_Image_Parser.cSharp.data
         private static readonly int recentFilesCount = int.Parse(appSettings.Settings[SETTINGS_RECENT_FILES_COUNT].Value);
         private static readonly List<string> recentFiles = new List<string>(appSettings.Settings[SETTINGS_RECENT_FILES].Value.Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries));
         public static readonly double relicImageDpi = double.Parse(appSettings.Settings[SETTINGS_RELIC_IMAGE_DPI].Value);
+        public static readonly bool alwaysReturnToLauncher = bool.Parse(appSettings.Settings[SETTINGS_RETURN_TO_LAUNCHER].Value);
         public static readonly bool logTake = bool.Parse(appSettings.Settings[SETTINGS_LOG_TAKE].Value);
         public static readonly string logPath = appSettings.Settings[SETTINGS_LOG_PATH].Value;
         public static readonly string logFile = appSettings.Settings[SETTINGS_LOG_FILE].Value;
@@ -204,7 +206,7 @@ namespace Relic_IC_Image_Parser.cSharp.data
         /// Open a File Chooser Dialog.
         /// </summary>
         /// <param name="window">The calling window.</param>
-        public static void OpenFile(Window window)
+        public static void OpenNewFile(Window window)
         {
             Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Opening file chooser dialog...");
 
@@ -223,6 +225,19 @@ namespace Relic_IC_Image_Parser.cSharp.data
             }
 
             Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Dialog return: " + result.ToString());
+        }
+
+        /// <summary>
+        /// Open a File From Provided Argument.
+        /// </summary>
+        /// <param name="fullFileName">The file path to open.</param>
+        public static void OpenArgFile(string fullFileName)
+        {
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Opening argument file...");
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "File name: " + fullFileName);
+
+            PopFileToRecentTop(fullFileName);
+            OpenEditorWindow(null, fullFileName);
         }
 
         /// <summary>

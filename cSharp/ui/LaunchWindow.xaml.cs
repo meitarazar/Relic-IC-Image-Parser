@@ -61,7 +61,7 @@ namespace Relic_IC_Image_Parser
         private void BtnOpenFile_Click(object sender, RoutedEventArgs e)
         {
             Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Opening new file...");
-            DataManager.OpenFile(this);
+            DataManager.OpenNewFile(this);
         }
 
         /// <summary>

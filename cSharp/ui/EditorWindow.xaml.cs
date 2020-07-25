@@ -44,7 +44,7 @@ namespace Relic_IC_Image_Parser
 
             Title = myFile.Name + " - " + App.AppName;
 
-            TextBox.Text = "Use your mouse to drag the image on the canvas.\n" + 
+            TextBox.Text = "Use your mouse to drag the image on the canvas.\n" +
                 "Use your mouse wheel to zoom in and out.";
 
             Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Get image...");
@@ -70,9 +70,9 @@ namespace Relic_IC_Image_Parser
             {
                 Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Oops... could not parse file...");
 
-                string msg = "The file you are trying to open is not supported" + 
-                    " or it might be a damaged file.\n\n" + 
-                    "If it's an SPT or TXR file it might be written in different format or empty" + 
+                string msg = "The file you are trying to open is not supported" +
+                    " or it might be a damaged file.\n\n" +
+                    "If it's an SPT or TXR file it might be written in different format or empty" +
                     " (you can never know with these files...).";
                 string title = "Unknown format";
 
@@ -228,7 +228,7 @@ namespace Relic_IC_Image_Parser
                 {
                     if (transform is MatrixTransform)
                     {
-                        return (MatrixTransform) transform;
+                        return (MatrixTransform)transform;
                     }
                 }
             }
@@ -247,7 +247,7 @@ namespace Relic_IC_Image_Parser
                 {
                     if (transform is TranslateTransform)
                     {
-                        return (TranslateTransform) transform;
+                        return (TranslateTransform)transform;
                     }
                 }
             }
@@ -263,7 +263,8 @@ namespace Relic_IC_Image_Parser
         {
             MatrixTransform matrix = GetCanvasMatrixTransform();
             TranslateTransform translate = GetCanvasTranslateTransform();
-            if (matrix != null && translate != null) {
+            if (matrix != null && translate != null)
+            {
                 Point mousePos = e.GetPosition(ParentGrid);
 
                 double scale = e.Delta > 0 ? 1.1 : 1 / 1.1;
@@ -332,7 +333,7 @@ namespace Relic_IC_Image_Parser
         private void BtnOpenFile_Click(object sender, RoutedEventArgs e)
         {
             Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Open new file...");
-            DataManager.OpenFile(this);
+            DataManager.OpenNewFile(this);
         }
 
         /// <summary>
@@ -424,9 +425,14 @@ namespace Relic_IC_Image_Parser
             App.editorsOpen--;
             if (App.editorsOpen == 0)
             {
-                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Last editor, open LaunchWindow");
-                LaunchWindow launcher = new LaunchWindow();
-                launcher.Show();
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Last editor, open LaunchWindow if needed");
+                if (DataManager.alwaysReturnToLauncher || !App.openedFromArgs)
+                {
+                    Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, 
+                        "we need [alwaysReturnToLauncher: " + DataManager.alwaysReturnToLauncher + ", openedFromArgs: " + App.openedFromArgs + "], openning LaunchWindow");
+                    LaunchWindow launcher = new LaunchWindow();
+                    launcher.Show();
+                }
             }
             base.OnClosing(e);
         }

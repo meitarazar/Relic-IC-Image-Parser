@@ -1,4 +1,5 @@
-﻿using Relic_IC_Image_Parser.cSharp.util;
+﻿using Relic_IC_Image_Parser.cSharp.data;
+using Relic_IC_Image_Parser.cSharp.util;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,6 +22,11 @@ namespace Relic_IC_Image_Parser
         // variables for handeling files as arguments
         private List<string> notExistFiles = new List<string>();
         private List<string> existFiles = new List<string>();
+
+        /// <summary>
+        /// Used to keep watch on how the app was opened
+        /// </summary>
+        public static bool openedFromArgs = false;
 
         /// <summary>
         /// Used to keep watch on how many Editors are open
@@ -87,11 +93,13 @@ namespace Relic_IC_Image_Parser
         {
             if (existFiles.Count > 0)
             {
+                // mark that we have been opned from args
+                openedFromArgs = true;
+                
                 // open editor window for each file
                 foreach (string file in existFiles)
                 {
-                    EditorWindow editor = new EditorWindow(file);
-                    editor.Show();
+                    DataManager.OpenArgFile(file);
                 }
             }
 
