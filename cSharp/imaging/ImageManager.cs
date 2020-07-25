@@ -84,6 +84,7 @@ namespace Relic_IC_Image_Parser.cSharp.imaging
                 image.BeginInit();
                 image.UriSource = new Uri(fileName);
                 image.CacheOption = BitmapCacheOption.OnLoad;
+                image.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
                 image.EndInit();
 
                 FormatConvertedBitmap bgraImage = new FormatConvertedBitmap();
