@@ -165,7 +165,7 @@ namespace Relic_IC_Image_Parser.cSharp.imaging
             }
 
             // opening a file stream to the disk
-            using (FileStream fileStream = File.OpenWrite(fileInfo.FullName))
+            using (FileStream fileStream = File.Open(fileInfo.FullName, FileMode.Create))
             {
                 Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "File stream opened");
                 Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Export type: " + exportType.ToString());
