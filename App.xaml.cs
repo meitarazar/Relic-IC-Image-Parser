@@ -18,6 +18,7 @@ namespace Relic_IC_Image_Parser
         public static readonly string AppName = ExeAssembly.GetName().Name;
         private static readonly System.Version Version = ExeAssembly.GetName().Version;
         public static readonly string VersionName = Version.Major + "." + Version.Minor + "." + Version.Build;
+        public static readonly string Location = new FileInfo(ExeAssembly.Location).DirectoryName;
 
         // variables for handeling files as arguments
         private List<string> notExistFiles = new List<string>();

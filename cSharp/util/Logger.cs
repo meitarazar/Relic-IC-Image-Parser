@@ -12,16 +12,25 @@ namespace Relic_IC_Image_Parser.cSharp.util
         {
             if (DataManager.logTake)
             {
-                string logFilePath = Path.GetFullPath(Path.Combine(DataManager.logPath, DataManager.logFile));
-                logFileStreamWriter = File.AppendText(logFilePath);
+                string prefix = DataManager.logPath.Replace(".\\", App.Location);
+                string logFilePath = Path.GetFullPath(Path.Combine(prefix, DataManager.logFile));
+                try
+                {
+                    if (!File.Exists(logFilePath))
+                    {
+                        File.Create(logFilePath).Close();
+                    }
+                    logFileStreamWriter = File.AppendText(logFilePath);
 
-                int padding = 12;
-                string title = App.AppName + " - v" + App.VersionName;
-                string msg = "\n"  + new string('#', title.Length + (padding + 1) * 2) + "\n" +
-                    new string('#', padding) + " " + title + " " + new string('#', padding) + "\n" +
-                    new string('#', title.Length + (padding + 1) * 2) + "\n";
-                logFileStreamWriter.WriteLine(msg);
-                logFileStreamWriter.Flush();
+                    int padding = 12;
+                    string title = App.AppName + " - v" + App.VersionName;
+                    string msg = "\n" + new string('#', title.Length + (padding + 1) * 2) + "\n" +
+                        new string('#', padding) + " " + title + " " + new string('#', padding) + "\n" +
+                        new string('#', title.Length + (padding + 1) * 2) + "\n";
+                    logFileStreamWriter.WriteLine(msg);
+                    logFileStreamWriter.Flush();
+                }
+                catch { }
             }
         }
         

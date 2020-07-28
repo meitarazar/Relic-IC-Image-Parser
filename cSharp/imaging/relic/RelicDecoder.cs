@@ -67,7 +67,7 @@ namespace Relic_IC_Image_Parser
         /// <returns>A list of all the file's tags.</returns>
         public static List<RelicTag> ReadAllTags(FileStream stream)
         {
-            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Reading all tags from strema...");
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Reading all tags from stream...");
 
             List<RelicTag> relicTags = new List<RelicTag>();
             while (stream.Position != stream.Length)
@@ -75,7 +75,7 @@ namespace Relic_IC_Image_Parser
                 relicTags.Add(ReadTag(stream, false));
             }
 
-            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Totla of " + relicTags.Count + " tags");
+            Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Total of " + relicTags.Count + " tags");
             return relicTags;
         }
 

@@ -373,7 +373,7 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
                     0,
                     subImagPixelData[i]
                     );
-                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Sub image form #" + subImags.Length);
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Sub image form #" + (i + 1));
             }
 
             Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Total of " + subImags.Length + " sub image forms");
@@ -430,7 +430,7 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
                 // remember that TXR is vertically flipped? so yeah...
                 //   we flipped it while importing, and we need to flip it back
                 subTxtrs[i] = RelicImage.ReverseTxrData(width, pixels);
-                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Extraction #" + subTxtrs.Length);
+                Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Extraction #" + (i + 1));
             }
 
             Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Total of " + subTxtrs.Length + " sub scaled texture's pixel data were extracted");
