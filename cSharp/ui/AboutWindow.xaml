@@ -1,9 +1,9 @@
-﻿<Window x:Class="Relic_IC_Image_Parser.cSharp.ui.AboutWindow"
+﻿<Window x:Class="Relic_IC_Image_Parser.AboutWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Relic_IC_Image_Parser.cSharp.ui"
+        xmlns:local="clr-namespace:Relic_IC_Image_Parser"
         mc:Ignorable="d"
         Title="About " ResizeMode="NoResize" Background="#FF243F60" WindowStartupLocation="CenterOwner" ShowInTaskbar="False" WindowStyle="ToolWindow" SizeToContent="WidthAndHeight">
     <Grid Margin="32">

@@ -1,8 +1,7 @@
-﻿using Relic_IC_Image_Parser.cSharp.data;
-using System;
+﻿using System;
 using System.IO;
 
-namespace Relic_IC_Image_Parser.cSharp.util
+namespace Relic_IC_Image_Parser
 {
     class Logger
     {

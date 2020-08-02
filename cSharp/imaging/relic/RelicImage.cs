@@ -1,6 +1,4 @@
-﻿using Relic_IC_Image_Parser.cSharp.data;
-using Relic_IC_Image_Parser.cSharp.util;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;

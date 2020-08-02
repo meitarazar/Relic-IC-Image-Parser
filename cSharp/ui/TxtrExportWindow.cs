@@ -1,9 +1,8 @@
-﻿using Relic_IC_Image_Parser.cSharp.util;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Windows;
 using System.Windows.Media;
 
-namespace Relic_IC_Image_Parser.cSharp.ui
+namespace Relic_IC_Image_Parser
 {
     /// <summary>
     /// Interaction logic for TxtrExportWindow.xaml

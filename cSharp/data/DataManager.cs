@@ -1,14 +1,13 @@
-﻿using Relic_IC_Image_Parser.cSharp.util;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Forms;
-using static Relic_IC_Image_Parser.cSharp.imaging.ImageManager;
+using static Relic_IC_Image_Parser.ImageManager;
 
-namespace Relic_IC_Image_Parser.cSharp.data
+namespace Relic_IC_Image_Parser
 {
     /// <summary>
     /// Class that wraps all files and settings related operations

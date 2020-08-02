@@ -1,15 +1,11 @@
-﻿using Relic_IC_Image_Parser.cSharp.imaging.relic;
-using Relic_IC_Image_Parser.cSharp.ui;
-using Relic_IC_Image_Parser.cSharp.util;
-using System;
+﻿using System;
 using System.IO;
-using System.Net.Cache;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace Relic_IC_Image_Parser.cSharp.imaging
+namespace Relic_IC_Image_Parser
 {
     /// <summary>
     /// Class that wraps all image related operations

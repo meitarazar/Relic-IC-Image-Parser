@@ -1,10 +1,8 @@
-﻿using Relic_IC_Image_Parser.cSharp.util;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography;
 using System.Text;
 using static Relic_IC_Image_Parser.Coordinates;
 using static Relic_IC_Image_Parser.RelicImage;

@@ -1,5 +1,4 @@
-﻿using Relic_IC_Image_Parser.cSharp.util;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -8,7 +7,7 @@ using System.Text;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace Relic_IC_Image_Parser.cSharp.imaging.relic
+namespace Relic_IC_Image_Parser
 {
     /// <summary>
     /// Tam Tam Tam!
@@ -42,7 +41,7 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
         {
             Logger.Append(MethodBase.GetCurrentMethod().DeclaringType.Name, MethodBase.GetCurrentMethod().Name, "Encoding SPT...");
 
-            string txtrName = "C:\\Exported\\From\\Relic_IC_Image_Parser\\By\\MightySarion";
+            string txtrName = @"C:\Exported\From\Relic_IC_Image_Parser\By\MightySarion";
             string txtrExtension = ".tga";
 
             int width = bitmapSource.PixelWidth;
@@ -367,7 +366,7 @@ namespace Relic_IC_Image_Parser.cSharp.imaging.relic
             for (int i = 0; i < subCount; i++)
             {
                 subImags[i] = new SubImagForm(
-                    (i == 0 ? "C:\\Exported\\From\\Relic_IC_Image_Parser\\By\\MightySarion.bmp\0" : "\0"),
+                    (i == 0 ? @"C:\Exported\From\Relic_IC_Image_Parser\By\MightySarion.bmp" : "") + "\0",
                     1,
                     new int[] { 0, transformedBitmaps[i].PixelWidth, transformedBitmaps[i].PixelHeight, subImagPixelData[i].Length},
                     0,

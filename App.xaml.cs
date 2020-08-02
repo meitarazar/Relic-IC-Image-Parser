@@ -1,6 +1,4 @@
-﻿using Relic_IC_Image_Parser.cSharp.data;
-using Relic_IC_Image_Parser.cSharp.util;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -16,7 +14,7 @@ namespace Relic_IC_Image_Parser
         // global app name and version
         private static Assembly ExeAssembly = Assembly.GetExecutingAssembly();
         public static readonly string AppName = ExeAssembly.GetName().Name;
-        private static readonly System.Version Version = ExeAssembly.GetName().Version;
+        private static readonly Version Version = ExeAssembly.GetName().Version;
         public static readonly string VersionName = Version.Major + "." + Version.Minor + "." + Version.Build;
         public static readonly string Location = new FileInfo(ExeAssembly.Location).DirectoryName;
 

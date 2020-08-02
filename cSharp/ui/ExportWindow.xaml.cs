@@ -1,13 +1,10 @@
-﻿using Relic_IC_Image_Parser.cSharp.data;
-using Relic_IC_Image_Parser.cSharp.imaging;
-using Relic_IC_Image_Parser.cSharp.util;
-using System.IO;
+﻿using System.IO;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Media.Imaging;
-using static Relic_IC_Image_Parser.cSharp.imaging.ImageManager;
+using static Relic_IC_Image_Parser.ImageManager;
 
-namespace Relic_IC_Image_Parser.cSharp.ui
+namespace Relic_IC_Image_Parser
 {
     /// <summary>
     /// Interaction logic for ExportWindow.xaml
